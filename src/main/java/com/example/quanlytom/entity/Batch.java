@@ -18,25 +18,20 @@ import java.util.List;
 @Builder
 @SQLDelete(sql = "UPDATE [Lo hang] SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
 @SQLRestriction("is_deleted = 0")
-public class LoHang {
+public class Batch {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Ma nhap hang")
-    private CtNhapHang ctNhapHang;
+    @Column(name = "Trang thai", columnDefinition = "NVARCHAR(255)")
+    private String status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Tom")
-    private Tom tom;
+    @Column(name = "Ten lo", columnDefinition = "NVARCHAR(255)")
+    private String batchName;
 
-    @Column(name = "Tong so luong nhap")
-    private Double tongSoLuongNhap;
-
-    @Column(name = "Trang thai")
-    private String trangThai;
+    @Column(name = "Ngay tao")
+    private LocalDateTime createdDate;
 
     // --- soft delete (UI only) ---
     @Column(name = "is_deleted", nullable = false)
@@ -46,7 +41,7 @@ public class LoHang {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "loHang")
+    @OneToMany(mappedBy = "batch")
     @Builder.Default
-    private List<CtXuatHang> chiTietXuatHangs = new ArrayList<>();
+    private List<ImportDetail> importDetails = new ArrayList<>();
 }

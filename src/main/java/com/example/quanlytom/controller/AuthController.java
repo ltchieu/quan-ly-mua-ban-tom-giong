@@ -137,4 +137,24 @@ public class AuthController {
                 .data(tokenRefreshResponse)
                 .build());
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse> logout(HttpServletResponse response) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            String identifier = authentication.getName();
+            Users user = userService.getUserByIdentifier(identifier)
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+            refreshTokenService.deleteByUserId(user.getId());
+            SecurityContextHolder.clearContext();
+
+            ResponseCookie cookie = refreshTokenService.createDeleteRefreshTokenCookie();
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        }
+
+        return ResponseEntity.ok(ApiResponse.builder().message("Logout successful").build());
+    }
 }

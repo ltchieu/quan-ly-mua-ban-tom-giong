@@ -1,18 +1,15 @@
 package com.example.quanlytom.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.*;
 
-import java.time.Instant;
-import java.util.Map;
-
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record ApiErrorResponse(
-        Instant timestamp,
-        int status,
-        String error,
-        Integer code,
-        String message,
-        String path,
-        Map<String, Object> details
-) {
+public class ApiErrorResponse {
+    private int code;
+    private String message;
 }

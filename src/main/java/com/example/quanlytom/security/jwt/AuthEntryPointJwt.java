@@ -26,15 +26,15 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
 
         response.setStatus(errorCode.getHttpStatus().value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE  );
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
+        // Keep a stable message key; API callers can localize via MessageSource in higher layers if desired.
         ApiResponse<?> apiResponse = ApiResponse.builder()
                 .code(errorCode.getCode())
-                .message(errorCode.getMessage())
+                .message(errorCode.getMessageKey())
                 .build();
         ObjectMapper mapper = new ObjectMapper();
         response.getWriter().write(mapper.writeValueAsString(apiResponse));
         response.flushBuffer();
     }
 }
-

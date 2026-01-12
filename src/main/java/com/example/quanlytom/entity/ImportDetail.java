@@ -10,22 +10,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "Tinh chat")
+@Table(name = "CT nhap hang")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE [Tinh chat] SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
+@SQLDelete(sql = "UPDATE [CT nhap hang] SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
 @SQLRestriction("is_deleted = 0")
-public class TinhChat {
+public class ImportDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "ten_tinh_chat")
-    private String tenTinhChat;
+    @Column(name = "so luong nhap")
+    private Double quantity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "Tom")
+    private Shrimp shrimp;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "Ma nhap hang")
+    private Import importOrder;
+
+    @Column(name = "Gia nhap")
+    private Double importPrice;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "Ma lo hang")
+    private Batch batch;
 
     // --- soft delete (UI only) ---
     @Column(name = "is_deleted", nullable = false)
@@ -35,7 +50,7 @@ public class TinhChat {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "tinhChat")
+    @OneToMany(mappedBy = "importDetail")
     @Builder.Default
-    private List<Tom> toms = new ArrayList<>();
+    private List<ExportDetail> exportDetails = new ArrayList<>();
 }

@@ -16,37 +16,37 @@ import java.time.LocalDateTime;
 @Builder
 @SQLDelete(sql = "UPDATE [CT xuat hang] SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
 @SQLRestriction("is_deleted = 0")
-public class CtXuatHang {
+public class ExportDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "So luong thuc giao")
-    private Double soLuongThucGiao;
+    private Double actualQuantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Ma xuat hang")
-    private XuatHang xuatHang;
+    private Export export;
 
     @Column(name = "So luong tra lai")
-    private Double soLuongTraLai;
+    private Double returnedQuantity;
 
     @Column(name = "Don gia")
-    private Double donGia;
+    private Double unitPrice;
 
     @Column(name = "Muc khau tru")
-    private Integer mucKhauTru;
+    private Integer deductionRate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Ma lo hang")
-    private LoHang loHang;
+    @JoinColumn(name = "Ma CT nhap hang")
+    private ImportDetail importDetail;
 
     @Column(name = "Thanh tien")
-    private Double thanhTien;
+    private Double subTotal;
 
-    @Column(name = "Ly do tra lai", columnDefinition = "TEXT")
-    private String lyDoTraLai;
+    @Column(name = "Ly do tra lai", columnDefinition = "NVARCHAR(MAX)")
+    private String returnReason;
 
     // --- soft delete (UI only) ---
     @Column(name = "is_deleted", nullable = false)

@@ -1,5 +1,6 @@
 package com.example.quanlytom.entity;
 
+import com.example.quanlytom.entity.Users;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -10,35 +11,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "Nhap hang")
+@Table(name = "Xuat hang")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE [Nhap hang] SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
+@SQLDelete(sql = "UPDATE [Xuat hang] SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
 @SQLRestriction("is_deleted = 0")
-public class NhapHang {
+public class Export {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "Ngay nhap hang")
-    private LocalDateTime ngayNhapHang;
+    @Column(name = "Ngay xuat")
+    private LocalDateTime exportDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Nha cung cap")
-    private NhaCungCap nhaCungCap;
+    @JoinColumn(name = "Khach hang")
+    private Customer customer;
 
-    @Column(name = "Tong tien hang")
-    private Double tongTienHang;
+    @Column(name = "Tong thanh toan")
+    private Double totalPayment;
 
-    @Column(name = "Trang thai thanh toan")
-    private String trangThaiThanhToan;
-
-    @Column(name = "Ghi chu", columnDefinition = "TEXT")
-    private String ghiChu;
+    @Column(name = "Hinh thuc thanh toan", columnDefinition = "NVARCHAR(255)")
+    private String paymentMethod;
 
     // --- auditing ---
     @ManyToOne(fetch = FetchType.LAZY)
@@ -56,7 +54,7 @@ public class NhapHang {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "nhapHang")
+    @OneToMany(mappedBy = "export")
     @Builder.Default
-    private List<CtNhapHang> chiTietNhapHangs = new ArrayList<>();
+    private List<ExportDetail> exportDetails = new ArrayList<>();
 }

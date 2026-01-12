@@ -12,7 +12,7 @@ public class AppException extends RuntimeException {
     private final Map<String, Object> details;
 
     public AppException(ErrorCode errorCode) {
-        super(errorCode.getMessage());
+        super(errorCode.getMessageKey());
         this.errorCode = errorCode;
         this.details = null;
     }
@@ -37,4 +37,3 @@ public class AppException extends RuntimeException {
         return details;
     }
 }
-

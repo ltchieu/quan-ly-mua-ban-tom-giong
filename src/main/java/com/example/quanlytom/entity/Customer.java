@@ -6,28 +6,32 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "Tôm")
+@Table(name = "Khach hang")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE [Tôm] SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
+@SQLDelete(sql = "UPDATE [Khach hang] SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
 @SQLRestriction("is_deleted = 0")
-public class Tom {
+public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "ten")
-    private String ten;
+    @Column(name = "Ho ten", columnDefinition = "NVARCHAR(255)")
+    private String fullName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tinhchat")
-    private TinhChat tinhChat;
+    @Column(name = "SDT", columnDefinition = "VARCHAR(255)")
+    private String phoneNumber;
+
+    @Column(name = "Dia chi", columnDefinition = "NVARCHAR(255)")
+    private String address;
 
     // --- soft delete (UI only) ---
     @Column(name = "is_deleted", nullable = false)
@@ -36,4 +40,8 @@ public class Tom {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "customer")
+    @Builder.Default
+    private List<Export> exports = new ArrayList<>();
 }

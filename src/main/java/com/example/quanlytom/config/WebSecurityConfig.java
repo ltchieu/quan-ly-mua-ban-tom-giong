@@ -65,7 +65,8 @@ public class WebSecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOriginPatterns(Arrays.asList(
-                "http://localhost:3000"
+                "http://localhost:3000",
+                "http://localhost:3001"
         ));
 
         config.setAllowedHeaders(Arrays.asList("*"));

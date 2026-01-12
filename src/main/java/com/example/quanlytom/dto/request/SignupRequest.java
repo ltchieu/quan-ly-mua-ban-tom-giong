@@ -15,12 +15,11 @@ public class SignupRequest {
     @NotBlank(message = "FIELD_REQUIRED")
     private String password = "123456";
 
-    @NotBlank(message = "FIELD REQUIRED")
+    @NotBlank(message = "FIELD_REQUIRED")
     @Pattern(
             regexp = "^(0|\\+84)[0-9]{9}$",
             message = "INVALID_PHONE_NUMBER"
     )
-    @NotBlank(message = "FILED_REQUIRED")
     private String phoneNumber;
 
     @Email(message = "INVALID_EMAIL")

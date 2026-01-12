@@ -6,35 +6,32 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "CT nhap hang")
+@Table(name = "Nha cung cap")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE [CT nhap hang] SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
+@SQLDelete(sql = "UPDATE [Nha cung cap] SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
 @SQLRestriction("is_deleted = 0")
-public class CtNhapHang {
+public class Supplier {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "so luong nhap")
-    private Double soLuongNhap;
+    @Column(name = "Ho ten", columnDefinition = "NVARCHAR(255)")
+    private String fullName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Tom")
-    private Tom tom;
+    @Column(name = "SDT", columnDefinition = "VARCHAR(255)")
+    private String phoneNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Ma nhap hang")
-    private NhapHang nhapHang;
-
-    @Column(name = "Gia nhap")
-    private Double giaNhap;
+    @Column(name = "Dia chi", columnDefinition = "NVARCHAR(255)")
+    private String address;
 
     // --- soft delete (UI only) ---
     @Column(name = "is_deleted", nullable = false)
@@ -44,6 +41,7 @@ public class CtNhapHang {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @OneToOne(mappedBy = "ctNhapHang")
-    private LoHang loHang;
+    @OneToMany(mappedBy = "supplier")
+    @Builder.Default
+    private List<Import> imports = new ArrayList<>();
 }
