@@ -11,47 +11,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "Xuat hang")
+@Table(name = "XuatHang")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE [Xuat hang] SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
-@SQLRestriction("is_deleted = 0")
+@SQLDelete(sql = "UPDATE [Xuat hang] SET IsDeleted = 1, DeletedAt = GETDATE() WHERE id = ?")
+@SQLRestriction("IsDeleted = 0")
 public class Export {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "Ngay xuat")
+    @Column(name = "NgayXuat")
     private LocalDateTime exportDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Khach hang")
+    @JoinColumn(name = "KhachHang")
     private Customer customer;
 
-    @Column(name = "Tong thanh toan")
+    @Column(name = "TongThanhToan")
     private Double totalPayment;
 
-    @Column(name = "Hinh thuc thanh toan", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "HinhThucThanhToan", columnDefinition = "NVARCHAR(255)")
     private String paymentMethod;
 
     // --- auditing ---
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
+    @JoinColumn(name = "CreatedBy")
     private Users createdBy;
 
-    @Column(name = "created_at")
+    @Column(name = "CreatedAt")
     private LocalDateTime createdAt;
 
     // --- soft delete (UI only) ---
-    @Column(name = "is_deleted", nullable = false)
+    @Column(name = "IsDeleted", nullable = false)
     @Builder.Default
     private boolean isDeleted = false;
 
-    @Column(name = "deleted_at")
+    @Column(name = "DeletedAt")
     private LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "export")

@@ -10,50 +10,50 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "Nhap hang")
+@Table(name = "NhapHang")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE [Nhap hang] SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
-@SQLRestriction("is_deleted = 0")
+@SQLDelete(sql = "UPDATE [Nhap hang] SET IsDeleted = 1, DeletedAt = GETDATE() WHERE id = ?")
+@SQLRestriction("IsDeleted = 0")
 public class Import {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "Ngay nhap hang")
+    @Column(name = "NgayNhapHang")
     private LocalDateTime importDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Nha cung cap")
+    @JoinColumn(name = "NhaCungCap")
     private Supplier supplier;
 
-    @Column(name = "Tong tien hang")
+    @Column(name = "TongTienHang")
     private Double totalAmount;
 
-    @Column(name = "Trang thai thanh toan", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "TrangThaiThanhToan", columnDefinition = "NVARCHAR(255)")
     private String paymentStatus;
 
-    @Column(name = "Ghi chu", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "GhiChu", columnDefinition = "NVARCHAR(MAX)")
     private String note;
 
     // --- auditing ---
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
+    @JoinColumn(name = "CreatedBy")
     private Users createdBy;
 
-    @Column(name = "created_at")
+    @Column(name = "CreatedAt")
     private LocalDateTime createdAt;
 
     // --- soft delete (UI only) ---
-    @Column(name = "is_deleted", nullable = false)
+    @Column(name = "IsDeleted", nullable = false)
     @Builder.Default
     private boolean isDeleted = false;
 
-    @Column(name = "deleted_at")
+    @Column(name = "DeletedAt")
     private LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "importOrder")

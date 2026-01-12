@@ -10,35 +10,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "Khach hang")
+@Table(name = "KhachHang")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE [Khach hang] SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
-@SQLRestriction("is_deleted = 0")
+@SQLDelete(sql = "UPDATE [Khach hang] SET IsDeleted = 1, DeletedAt = GETDATE() WHERE id = ?")
+@SQLRestriction("IsDeleted = 0")
 public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "Ho ten", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "HoTen", columnDefinition = "NVARCHAR(255)")
     private String fullName;
 
-    @Column(name = "SDT", columnDefinition = "VARCHAR(255)")
+    @Column(name = "Sdt", columnDefinition = "VARCHAR(255)")
     private String phoneNumber;
 
-    @Column(name = "Dia chi", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "DiaChi", columnDefinition = "NVARCHAR(255)")
     private String address;
 
     // --- soft delete (UI only) ---
-    @Column(name = "is_deleted", nullable = false)
+    @Column(name = "IsDeleted", nullable = false)
     @Builder.Default
     private boolean isDeleted = false;
 
-    @Column(name = "deleted_at")
+    @Column(name = "DeletedAt")
     private LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "customer")

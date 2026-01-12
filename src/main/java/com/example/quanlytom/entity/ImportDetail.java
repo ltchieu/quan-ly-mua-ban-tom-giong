@@ -10,44 +10,44 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "CT nhap hang")
+@Table(name = "CTNhapHang")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE [CT nhap hang] SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
-@SQLRestriction("is_deleted = 0")
+@SQLDelete(sql = "UPDATE [CT nhap hang] SET IsDeleted = 1, DeletedAt = GETDATE() WHERE id = ?")
+@SQLRestriction("IsDeleted = 0")
 public class ImportDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "so luong nhap")
+    @Column(name = "SoLuongNhap")
     private Double quantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Tom")
-    private Shrimp shrimp;
+    @JoinColumn(name = "MaTinhChatTom")
+    private ShrimpAttribute shrimpAttribute;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Ma nhap hang")
+    @JoinColumn(name = "MaNhapHang")
     private Import importOrder;
 
-    @Column(name = "Gia nhap")
+    @Column(name = "GiaNhap")
     private Double importPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Ma lo hang")
+    @JoinColumn(name = "MaLoHang")
     private Batch batch;
 
     // --- soft delete (UI only) ---
-    @Column(name = "is_deleted", nullable = false)
+    @Column(name = "IsDeleted", nullable = false)
     @Builder.Default
     private boolean isDeleted = false;
 
-    @Column(name = "deleted_at")
+    @Column(name = "DeletedAt")
     private LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "importDetail")

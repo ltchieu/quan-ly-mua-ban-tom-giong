@@ -17,10 +17,10 @@ public class ShrimpAttribute {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Ma tinh chat")
+    @JoinColumn(name = "MaTinhChat")
     private Attribute attribute;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Ma tom")
+    @JoinColumn(name = "MaTom")
     private Shrimp shrimp;
 }

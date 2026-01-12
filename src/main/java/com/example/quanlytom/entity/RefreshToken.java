@@ -15,16 +15,16 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "refresh_token",nullable = false, unique = true)
+    @Column(name = "RefreshToken",nullable = false, unique = true)
     private String refreshToken;
 
-    @Column(name = "hethan", nullable = false)
+    @Column(name = "Hethan", nullable = false)
     private Instant expiryDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "manguoidung", nullable = false)
+    @JoinColumn(name = "Manguoidung", nullable = false)
     private Users user;
 
-    @Column(name = "dathuhoi", nullable = false)
+    @Column(name = "Dathuhoi", nullable = false)
     private Boolean revoked = false;
 }

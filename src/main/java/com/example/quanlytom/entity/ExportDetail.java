@@ -8,51 +8,51 @@ import org.hibernate.annotations.SQLRestriction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "CT xuat hang")
+@Table(name = "CTXuatHang")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE [CT xuat hang] SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
-@SQLRestriction("is_deleted = 0")
+@SQLDelete(sql = "UPDATE [CT xuat hang] SET IsDeleted = 1, DeletedAt = GETDATE() WHERE id = ?")
+@SQLRestriction("IsDeleted = 0")
 public class ExportDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "So luong thuc giao")
+    @Column(name = "SoLuongThucGiao")
     private Double actualQuantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Ma xuat hang")
+    @JoinColumn(name = "MaXuatHang")
     private Export export;
 
-    @Column(name = "So luong tra lai")
+    @Column(name = "SoLuongTraLai")
     private Double returnedQuantity;
 
-    @Column(name = "Don gia")
+    @Column(name = "DonGia")
     private Double unitPrice;
 
-    @Column(name = "Muc khau tru")
+    @Column(name = "MucKhauTru")
     private Integer deductionRate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Ma CT nhap hang")
+    @JoinColumn(name = "MaCtNhapHang")
     private ImportDetail importDetail;
 
-    @Column(name = "Thanh tien")
+    @Column(name = "ThanhTien")
     private Double subTotal;
 
-    @Column(name = "Ly do tra lai", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "LyDoTraLai", columnDefinition = "NVARCHAR(MAX)")
     private String returnReason;
 
     // --- soft delete (UI only) ---
-    @Column(name = "is_deleted", nullable = false)
+    @Column(name = "IsDeleted", nullable = false)
     @Builder.Default
     private boolean isDeleted = false;
 
-    @Column(name = "deleted_at")
+    @Column(name = "DeletedAt")
     private LocalDateTime deletedAt;
 }

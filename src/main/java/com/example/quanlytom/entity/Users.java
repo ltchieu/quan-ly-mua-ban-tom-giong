@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @Table(
         name = "Users",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_users_phone", columnNames = "phone"),
-                @UniqueConstraint(name = "uk_users_email", columnNames = "email")
+                @UniqueConstraint(name = "uk_users_phone", columnNames = "Phone"),
+                @UniqueConstraint(name = "uk_users_email", columnNames = "Email")
         }
 )
 @Getter
@@ -22,37 +22,37 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE Users SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
-@SQLRestriction("is_deleted = 0")
+@SQLDelete(sql = "UPDATE Users SET IsDeleted = 1, DeletedAt = GETDATE() WHERE id = ?")
+@SQLRestriction("IsDeleted = 0")
 public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "phone", length = 20, nullable = false)
+    @Column(name = "Phone", length = 20, nullable = false)
     private String phone;
 
     @Email
-    @Column(name = "email", length = 255, nullable = false)
+    @Column(name = "Email", length = 255, nullable = false)
     private String email;
 
-    @Column(name = "password_hash", length = 255, nullable = false)
+    @Column(name = "PasswordHash", length = 255, nullable = false)
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", length = 50, nullable = false)
+    @Column(name = "Role", length = 50, nullable = false)
     private Role role;
 
     // --- soft delete ---
-    @Column(name = "is_deleted", nullable = false)
+    @Column(name = "IsDeleted", nullable = false)
     @Builder.Default
     private boolean isDeleted = false;
 
-    @Column(name = "deleted_at")
+    @Column(name = "DeletedAt")
     private LocalDateTime deletedAt;
 
-    @Column (name = "created_at")
+    @Column (name = "CreatedAt")
     private LocalDateTime createdAt;
 }
 
