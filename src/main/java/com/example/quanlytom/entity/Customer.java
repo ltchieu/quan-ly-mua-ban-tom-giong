@@ -16,8 +16,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE [Khach hang] SET IsDeleted = 1, DeletedAt = GETDATE() WHERE id = ?")
-@SQLRestriction("IsDeleted = 0")
+@SQLDelete(sql = "UPDATE [KhachHang] SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
+@SQLRestriction("is_deleted = 0")
 public class Customer {
 
     @Id

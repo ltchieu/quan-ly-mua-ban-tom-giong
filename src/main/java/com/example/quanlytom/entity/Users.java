@@ -22,8 +22,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE Users SET IsDeleted = 1, DeletedAt = GETDATE() WHERE id = ?")
-@SQLRestriction("IsDeleted = 0")
+@SQLDelete(sql = "UPDATE Users SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
+@SQLRestriction("is_deleted = 0")
 public class Users {
 
     @Id
