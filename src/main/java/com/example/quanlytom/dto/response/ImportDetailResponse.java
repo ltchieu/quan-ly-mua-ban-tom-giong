@@ -9,8 +9,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Value
-@Setter
-@Getter
 public class ImportDetailResponse implements Serializable {
     Integer importId;
     LocalDateTime importDate;
@@ -21,6 +19,8 @@ public class ImportDetailResponse implements Serializable {
     List<ImportDetails> importDetails;
 
     @Value
+    @Setter
+    @Getter
     public static class ImportDetails {
         BigDecimal price;
         Double quantity;

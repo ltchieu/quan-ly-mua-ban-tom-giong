@@ -1,5 +1,6 @@
 package com.example.quanlytom.controller;
 
+import com.example.quanlytom.dto.request.ImportRequest;
 import com.example.quanlytom.dto.response.ApiResponse;
 import com.example.quanlytom.dto.response.ImportDetailResponse;
 import com.example.quanlytom.dto.response.ImportPageResponse;
@@ -36,10 +37,28 @@ public class ImportController {
         );
         return ResponseEntity.ok().body(ApiResponse.builder().data(res).build());
     }
-    
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getImportDetail(@PathVariable Integer importId) {
         ImportDetailResponse res = importService.getImportDetail(importId);
         return ResponseEntity.ok().body(ApiResponse.builder().data(res).build());
+    }
+
+    @PostMapping()
+    public ResponseEntity<ApiResponse> saveImport(@RequestBody ImportRequest importRequest) {
+        ImportDetailResponse anImport = importService.saveImport(importRequest);
+        return ResponseEntity.ok().body(ApiResponse.builder().data(anImport).build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse> updateImport(@PathVariable Integer id, @RequestBody ImportRequest importRequest) {
+        ImportDetailResponse updatedImport = importService.updateImport(importRequest, id);
+        return ResponseEntity.ok().body(ApiResponse.builder().data(updatedImport).build());
+    }
+
+    @PutMapping("/delete/{id}")
+    public ResponseEntity<ApiResponse> deleteImport(@PathVariable Integer id) {
+        importService.deleteImport(id);
+        return ResponseEntity.ok().body(ApiResponse.builder().message("Import deleted successfully").build());
     }
 }
