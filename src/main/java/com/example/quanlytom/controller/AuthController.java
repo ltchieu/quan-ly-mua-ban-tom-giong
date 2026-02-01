@@ -139,7 +139,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse> logout(HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -155,6 +155,6 @@ public class AuthController {
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         }
 
-        return ResponseEntity.ok(ApiResponse.builder().message("Logout successful").build());
+        return ResponseEntity.ok(ApiResponse.<Void>builder().message("Logout successful").build());
     }
 }

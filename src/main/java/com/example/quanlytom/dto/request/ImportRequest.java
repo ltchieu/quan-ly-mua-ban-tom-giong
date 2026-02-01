@@ -25,9 +25,8 @@ public class ImportRequest implements Serializable {
     public static class ImportDetailRequest{
         Double quantity;
         BigDecimal price;
-        Integer batchId;
-        String batchName;
         Integer shrimpId;
+
         Integer attributeId;
     }
 }

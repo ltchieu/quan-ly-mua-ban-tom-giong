@@ -8,6 +8,7 @@ import com.example.quanlytom.entity.Batch;
 import com.example.quanlytom.entity.Import;
 import com.example.quanlytom.entity.ImportDetail;
 import com.example.quanlytom.entity.ShrimpAttribute;
+import com.example.quanlytom.enums.BatchStatus;
 import com.example.quanlytom.mapper.ImportDetailMapper;
 import com.example.quanlytom.repository.BatchRepository;
 import com.example.quanlytom.repository.ImportDetailRepository;
@@ -64,7 +65,7 @@ public class ImportService {
     @Transactional
     public ImportDetailResponse saveImport(ImportRequest importRequest) {
         Import anImport = importMapper.toNewImport(importRequest);
-        // Ensure fallback if mapper doesn't set these (though it should)
+        // Ensure fallback if mapper doesn't set these
         if (anImport.getImportDate() == null) anImport.setImportDate(LocalDateTime.now());
         if (anImport.getCreatedAt() == null) anImport.setCreatedAt(LocalDateTime.now());
         anImport.setDeleted(false);
@@ -72,16 +73,17 @@ public class ImportService {
         // Save Import first to get the ID
         anImport = importRepository.save(anImport);
 
+        //Save a new Batch
+        Batch newBatch = new Batch();
+        String batchName = "BATCH-" + anImport.getCreatedAt().toLocalDate().toString();
+        newBatch.setBatchName(batchName);
+        newBatch.setCreatedDate(LocalDateTime.now());
+        newBatch.setStatus(BatchStatus.IN_PROGRESS.toString());
+        newBatch = batchRepository.save(newBatch);
+
+        // Save ImportDetails
         if (importRequest.getImportDetails() != null) {
             for (var detail : importRequest.getImportDetails()) {
-                Integer finalBatchId = detail.getBatchId();
-                if (finalBatchId == null && detail.getBatchName() != null) {
-                    Batch newBatch = new Batch();
-                    newBatch.setBatchName(detail.getBatchName());
-                    newBatch = batchRepository.save(newBatch);
-                    finalBatchId = newBatch.getId();
-                }
-
                 ImportDetail importDetail = importDetailMapper.toImportDetail(detail);
                 ShrimpAttribute shrimpAttribute = shrimpAttributeRepository.findByShrimpAndAttribute(
                         detail.getShrimpId(),
@@ -89,12 +91,8 @@ public class ImportService {
                 ).orElseThrow(() -> new RuntimeException("ShrimpAttribute not found for shrimpId: " + detail.getShrimpId() + " and attributeId: " + detail.getAttributeId()));
                 importDetail.setShrimpAttribute(shrimpAttribute);
                 importDetail.setImportOrder(anImport);
+                importDetail.setBatch(newBatch);
 
-                if (finalBatchId != null) {
-                    Batch batch = new Batch();
-                    batch.setId(finalBatchId);
-                    importDetail.setBatch(batch);
-                }
                 importDetailRepository.save(importDetail);
             }
         }
