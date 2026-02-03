@@ -24,7 +24,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -44,7 +43,8 @@ public class ImportService {
             Integer supplierId,
             int page, int size
     ) {
-        Specification<Import> specification = ImportSpec.hasSupplier(supplierId)
+        Specification<Import> specification = ImportSpec.isNotDeleted()
+                .and(ImportSpec.hasSupplier(supplierId))
                 .and(ImportSpec.isBetweenDates(startDate, endDate));
 
         Pageable paging = PageRequest.of(page, size, Sort.by("importDate").descending());

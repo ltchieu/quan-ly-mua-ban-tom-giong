@@ -31,4 +31,8 @@ public class ImportSpec {
             return cb.between(root.get("importDate"), startDate, endDate);
         };
     }
+
+    public static Specification<Import> isNotDeleted() {
+        return (root, query, cb) -> cb.isFalse(root.get("isDeleted"));
+    }
 }

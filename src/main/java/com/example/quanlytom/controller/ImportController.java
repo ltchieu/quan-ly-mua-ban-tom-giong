@@ -53,7 +53,7 @@ public class ImportController {
         return ResponseEntity.ok().body(ApiResponse.<ImportDetailResponse>builder().data(updatedImport).build());
     }
 
-    @PutMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteImport(@PathVariable Integer id) {
         importService.deleteImport(id);
         return ResponseEntity.ok().body(ApiResponse.<Void>builder().message("Import deleted successfully").build());

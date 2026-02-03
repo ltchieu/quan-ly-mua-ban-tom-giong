@@ -26,7 +26,6 @@ public class ImportRequest implements Serializable {
         Double quantity;
         BigDecimal price;
         Integer shrimpId;
-
         Integer attributeId;
     }
 }
