@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,7 @@ public class Export {
     private Customer customer;
 
     @Column(name = "TongThanhToan")
-    private Double totalPayment;
+    private BigDecimal totalPayment;
 
     @Column(name = "HinhThucThanhToan", columnDefinition = "NVARCHAR(255)")
     private String paymentMethod;

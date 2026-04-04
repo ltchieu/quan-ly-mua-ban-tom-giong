@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -33,7 +34,7 @@ public class ExportDetail {
     private Double returnedQuantity;
 
     @Column(name = "DonGia")
-    private Double unitPrice;
+    private BigDecimal unitPrice;
 
     @Column(name = "MucKhauTru")
     private Integer deductionRate;
@@ -43,7 +44,7 @@ public class ExportDetail {
     private ImportDetail importDetail;
 
     @Column(name = "ThanhTien")
-    private Double subTotal;
+    private BigDecimal subTotal;
 
     @Column(name = "LyDoTraLai", columnDefinition = "NVARCHAR(MAX)")
     private String returnReason;

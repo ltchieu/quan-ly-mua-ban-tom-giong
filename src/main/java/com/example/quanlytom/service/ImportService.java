@@ -14,7 +14,7 @@ import com.example.quanlytom.repository.BatchRepository;
 import com.example.quanlytom.repository.ImportDetailRepository;
 import com.example.quanlytom.repository.ImportRepository;
 import com.example.quanlytom.repository.ShrimpAttributeRepository;
-import com.example.quanlytom.specification.ImportSpec;
+import com.example.quanlytom.specification.GenericSpecification;
 import com.example.quanlytom.mapper.ImportMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -43,9 +43,9 @@ public class ImportService {
             Integer supplierId,
             int page, int size
     ) {
-        Specification<Import> specification = ImportSpec.isNotDeleted()
-                .and(ImportSpec.hasSupplier(supplierId))
-                .and(ImportSpec.isBetweenDates(startDate, endDate));
+        Specification<Import> specification = GenericSpecification.<Import>isNotDeleted()
+                .and(GenericSpecification.hasJoinAttribute("supplier", supplierId))
+                .and(GenericSpecification.isBetweenDates(startDate, endDate, "importDate"));
 
         Pageable paging = PageRequest.of(page, size, Sort.by("importDate").descending());
         Page<Import> pagedResult = importRepository.findAll(specification, paging);
