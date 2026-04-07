@@ -1,6 +1,6 @@
 package com.example.quanlytom.mapper;
 
-import com.example.quanlytom.dto.request.ImportRequest;
+import com.example.quanlytom.dto.request.ImportCreationRequest;
 import com.example.quanlytom.entity.ImportDetail;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,5 +17,5 @@ public interface ImportDetailMapper {
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "importOrder", ignore = true)
     @Mapping(target = "exportDetails", ignore = true)
-    ImportDetail toImportDetail(ImportRequest.ImportDetailRequest request);
+    ImportDetail toImportDetail(ImportCreationRequest.ImportDetailRequest request);
 }

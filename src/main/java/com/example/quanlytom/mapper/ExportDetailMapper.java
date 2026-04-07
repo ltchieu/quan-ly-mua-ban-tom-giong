@@ -1,9 +1,11 @@
 package com.example.quanlytom.mapper;
 
 import com.example.quanlytom.dto.response.ExportDetailResponse;
+import com.example.quanlytom.dto.request.ExportCreationRequest;
 import com.example.quanlytom.entity.ExportDetail;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface ExportDetailMapper {
@@ -18,4 +20,10 @@ public interface ExportDetailMapper {
     @Mapping(target = "importDetail.attributeName", source = "importDetail.shrimpAttribute.attribute.name")
     @Mapping(target = "importDetail.attributeId", source = "importDetail.shrimpAttribute.attribute.id")
     ExportDetailResponse.ExportDetailItem toExportDetailItem(ExportDetail exportDetail);
+
+    @Mapping(target = "importDetail.batch.id", source = "batchId")
+    ExportDetail toExportDetail(ExportCreationRequest.ExportDetailCreationRequest request);
+
+    @Mapping(target = "importDetail.batch.id", source = "batchId")
+    void updateExportDetailFromRequest(ExportCreationRequest.ExportDetailCreationRequest request, @MappingTarget ExportDetail exportDetail);
 }

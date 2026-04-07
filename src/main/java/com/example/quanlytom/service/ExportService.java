@@ -1,5 +1,6 @@
 package com.example.quanlytom.service;
 
+import com.example.quanlytom.dto.request.ExportCreationRequest;
 import com.example.quanlytom.dto.response.ExportDetailResponse;
 import com.example.quanlytom.dto.response.ExportPageResponse;
 import com.example.quanlytom.entity.Export;
@@ -16,11 +17,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -59,5 +60,71 @@ public class ExportService {
                 .map(exportDetailMapper::toExportDetailItem)
                 .toList();
         return new ExportDetailResponse(exportInfo, detailItems);
+    }
+
+    @Transactional
+    public ExportPageResponse.ExportResponse saveExport(ExportCreationRequest exportCreationRequest){
+        Export newExport = exportMapper.toNewExport(exportCreationRequest);
+        newExport.setExportDate(LocalDateTime.now());
+        newExport.setCreatedAt(LocalDateTime.now());
+        newExport.setDeleted(false);
+
+        exportRepository.save(newExport);
+
+        if(exportCreationRequest.getExportDetails() != null){
+            for (var item : exportCreationRequest.getExportDetails()){
+                ExportDetail exportDetail = exportDetailMapper.toExportDetail(item);
+                exportDetail.setExport(newExport);
+                exportDetailRepository.save(exportDetail);
+            }
+        }
+
+        return exportMapper.toExportResponse(newExport);
+    }
+
+    @Transactional
+    public ExportPageResponse.ExportResponse updateExport(ExportCreationRequest exportUpdateRequest, Integer exportId){
+        Export anExport = exportRepository.findById(exportId).orElseThrow(() -> new RuntimeException("Export not found"));
+        exportMapper.updateExportFromRequest(exportUpdateRequest, anExport);
+        exportRepository.save(anExport);
+
+        if(exportUpdateRequest.getExportDetails() != null){
+            List<ExportDetail> currentDetails = new ArrayList<>(anExport.getExportDetails());
+
+            for (var item : exportUpdateRequest.getExportDetails()){
+                ExportDetail existingDetail = null;
+                if (item.getBatchId() != null) {
+                    existingDetail = currentDetails.stream()
+                        .filter(d -> d.getImportDetail() != null && 
+                                     d.getImportDetail().getBatch() != null && 
+                                     item.getBatchId().equals(d.getImportDetail().getBatch().getId()))
+                        .findFirst().orElse(null);
+                }
+
+                if (existingDetail != null) {
+                    exportDetailMapper.updateExportDetailFromRequest(item, existingDetail);
+                    exportDetailRepository.save(existingDetail);
+                    currentDetails.remove(existingDetail);
+                } else {
+                    ExportDetail newDetail = exportDetailMapper.toExportDetail(item);
+                    newDetail.setExport(anExport);
+                    exportDetailRepository.save(newDetail);
+                }
+            }
+            
+            if (!currentDetails.isEmpty()) {
+                exportDetailRepository.deleteAll(currentDetails);
+            }
+        }
+
+        return exportMapper.toExportResponse(anExport);
+    }
+
+    @Transactional
+    public void deleteExport(Integer exportId) {
+        Export anExport = exportRepository.findById(exportId).orElseThrow(() -> new RuntimeException("Export not found"));
+        anExport.setDeleted(true);
+        anExport.setDeletedAt(LocalDateTime.now());
+        exportRepository.save(anExport);
     }
 }

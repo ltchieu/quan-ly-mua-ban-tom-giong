@@ -1,9 +1,12 @@
 package com.example.quanlytom.mapper;
 
 import com.example.quanlytom.dto.response.ExportPageResponse;
+import com.example.quanlytom.dto.request.ExportCreationRequest;
 import com.example.quanlytom.entity.Export;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -16,4 +19,10 @@ public interface ExportMapper {
     ExportPageResponse.ExportResponse toExportResponse(Export export);
 
     List<ExportPageResponse.ExportResponse> toExportResponseList(List<Export> export);
+
+    @Mapping(target = "customer.id", source = "customerId")
+    Export toNewExport(ExportCreationRequest request);
+
+    @Mapping(target = "customer.id", source = "customerId")
+    void updateExportFromRequest(ExportCreationRequest request, @MappingTarget Export export);
 }

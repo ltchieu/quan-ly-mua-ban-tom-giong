@@ -1,6 +1,6 @@
 package com.example.quanlytom.controller;
 
-import com.example.quanlytom.dto.request.ImportRequest;
+import com.example.quanlytom.dto.request.ImportCreationRequest;
 import com.example.quanlytom.dto.response.ApiResponse;
 import com.example.quanlytom.dto.response.ImportDetailResponse;
 import com.example.quanlytom.dto.response.ImportPageResponse;
@@ -42,14 +42,14 @@ public class ImportController {
     }
 
     @PostMapping()
-    public ResponseEntity<ApiResponse<ImportDetailResponse>> saveImport(@RequestBody ImportRequest importRequest) {
-        ImportDetailResponse anImport = importService.saveImport(importRequest);
+    public ResponseEntity<ApiResponse<ImportDetailResponse>> saveImport(@RequestBody ImportCreationRequest importCreationRequest) {
+        ImportDetailResponse anImport = importService.saveImport(importCreationRequest);
         return ResponseEntity.ok().body(ApiResponse.<ImportDetailResponse>builder().data(anImport).build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ImportDetailResponse>> updateImport(@PathVariable Integer id, @RequestBody ImportRequest importRequest) {
-        ImportDetailResponse updatedImport = importService.updateImport(importRequest, id);
+    public ResponseEntity<ApiResponse<ImportDetailResponse>> updateImport(@PathVariable Integer id, @RequestBody ImportCreationRequest importCreationRequest) {
+        ImportDetailResponse updatedImport = importService.updateImport(importCreationRequest, id);
         return ResponseEntity.ok().body(ApiResponse.<ImportDetailResponse>builder().data(updatedImport).build());
     }
 

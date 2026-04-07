@@ -1,6 +1,6 @@
 package com.example.quanlytom.service;
 
-import com.example.quanlytom.dto.request.ImportRequest;
+import com.example.quanlytom.dto.request.ImportCreationRequest;
 import com.example.quanlytom.dto.response.ImportDetailResponse;
 import com.example.quanlytom.dto.response.ImportPageResponse;
 import com.example.quanlytom.dto.response.ImportResponse;
@@ -25,6 +25,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -63,8 +64,8 @@ public class ImportService {
     }
 
     @Transactional
-    public ImportDetailResponse saveImport(ImportRequest importRequest) {
-        Import anImport = importMapper.toNewImport(importRequest);
+    public ImportDetailResponse saveImport(ImportCreationRequest importCreationRequest) {
+        Import anImport = importMapper.toNewImport(importCreationRequest);
         // Ensure fallback if mapper doesn't set these
         if (anImport.getImportDate() == null) anImport.setImportDate(LocalDateTime.now());
         if (anImport.getCreatedAt() == null) anImport.setCreatedAt(LocalDateTime.now());
@@ -82,8 +83,8 @@ public class ImportService {
         newBatch = batchRepository.save(newBatch);
 
         // Save ImportDetails
-        if (importRequest.getImportDetails() != null) {
-            for (var detail : importRequest.getImportDetails()) {
+        if (importCreationRequest.getImportDetails() != null) {
+            for (var detail : importCreationRequest.getImportDetails()) {
                 ImportDetail importDetail = importDetailMapper.toImportDetail(detail);
                 ShrimpAttribute shrimpAttribute = shrimpAttributeRepository.findByShrimpAndAttribute(
                         detail.getShrimpId(),
@@ -99,10 +100,30 @@ public class ImportService {
         return importMapper.toImportDetailResponse(anImport);
     }
 
-    public ImportDetailResponse updateImport(ImportRequest importRequest, Integer importId) {
+    @Transactional
+    public ImportDetailResponse updateImport(ImportCreationRequest importCreationRequest, Integer importId) {
         Import anImport = importRepository.findById(importId).orElseThrow(() -> new RuntimeException("Import not found"));
-        importMapper.updateImportFromRequest(importRequest, anImport);
+        importMapper.updateImportFromRequest(importCreationRequest, anImport);
         importRepository.save(anImport);
+
+        if(importCreationRequest.getImportDetails() != null){
+            List<ImportDetail> currentDetails = new ArrayList<>(anImport.getImportDetails());
+
+            for(var item : importCreationRequest.getImportDetails()){
+                ImportDetail existingDetail = null;
+                if(item.getId() != null){
+                    existingDetail = currentDetails.stream()
+                            .filter(d -> item.getId().equals(d.getId()))
+                            .findFirst().orElse(null);
+                }
+
+                if(existingDetail != null){
+
+                }
+            }
+
+        }
+
         return importMapper.toImportDetailResponse(anImport);
     }
 

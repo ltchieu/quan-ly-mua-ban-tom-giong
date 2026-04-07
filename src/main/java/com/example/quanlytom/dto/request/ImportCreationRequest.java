@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ImportRequest implements Serializable {
+public class ImportCreationRequest implements Serializable {
     Double totalAmount;
     String paymentStatus;
     String note;
@@ -23,6 +23,7 @@ public class ImportRequest implements Serializable {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ImportDetailRequest{
+        Integer id;
         Double quantity;
         BigDecimal price;
         Integer shrimpId;

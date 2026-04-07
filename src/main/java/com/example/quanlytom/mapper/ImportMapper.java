@@ -1,6 +1,6 @@
 package com.example.quanlytom.mapper;
 
-import com.example.quanlytom.dto.request.ImportRequest;
+import com.example.quanlytom.dto.request.ImportCreationRequest;
 import com.example.quanlytom.dto.response.ImportDetailResponse;
 import com.example.quanlytom.dto.response.ImportResponse;
 import com.example.quanlytom.entity.Import;
@@ -39,10 +39,10 @@ public interface ImportMapper {
     @Mapping(target = "isDeleted", constant = "false")
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "importDetails", ignore = true)
-    Import toNewImport(ImportRequest importRequest);
+    Import toNewImport(ImportCreationRequest importCreationRequest);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateImportFromRequest(ImportRequest importRequest, @MappingTarget Import importEntity);
+    void updateImportFromRequest(ImportCreationRequest importCreationRequest, @MappingTarget Import importEntity);
 
     List<ImportResponse> toImportResponseList(List<Import> imports);
 }
