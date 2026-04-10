@@ -2,6 +2,7 @@ package com.example.quanlytom.controller;
 
 import com.example.quanlytom.dto.request.ImportCreationRequest;
 import com.example.quanlytom.dto.response.ApiResponse;
+import com.example.quanlytom.dto.response.AvailableStockResponse;
 import com.example.quanlytom.dto.response.ImportDetailResponse;
 import com.example.quanlytom.dto.response.ImportPageResponse;
 import com.example.quanlytom.service.ImportService;
@@ -10,6 +11,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/imports")
@@ -39,6 +41,12 @@ public class ImportController {
     public ResponseEntity<ApiResponse<ImportDetailResponse>> getImportDetail(@PathVariable Integer id) {
         ImportDetailResponse res = importService.getImportDetail(id);
         return ResponseEntity.ok().body(ApiResponse.<ImportDetailResponse>builder().data(res).build());
+    }
+
+    @GetMapping("available-stock/{batchId}")
+    public ResponseEntity<ApiResponse<List<AvailableStockResponse>>> getAvailableStock(@PathVariable Integer batchId){
+        List<AvailableStockResponse> res = importService.getAvailableStock(batchId);
+        return ResponseEntity.ok().body(ApiResponse.<List<AvailableStockResponse>>builder().data(res).build());
     }
 
     @PostMapping()

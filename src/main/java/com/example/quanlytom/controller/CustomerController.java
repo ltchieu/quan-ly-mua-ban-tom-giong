@@ -18,7 +18,7 @@ public class CustomerController {
     final CustomerService customerService;
 
     @GetMapping()
-    public ResponseEntity<ApiResponse> getAllCustomers() {
+    public ResponseEntity<ApiResponse<List<CustomerResponse>>> getAllCustomers() {
         List<CustomerResponse> customers = customerService.getAllCustomers();
         return ResponseEntity.ok().body(ApiResponse.<List<CustomerResponse>>builder().data(customers).build());
     }

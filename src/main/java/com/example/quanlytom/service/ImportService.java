@@ -1,6 +1,7 @@
 package com.example.quanlytom.service;
 
 import com.example.quanlytom.dto.request.ImportCreationRequest;
+import com.example.quanlytom.dto.response.AvailableStockResponse;
 import com.example.quanlytom.dto.response.ImportDetailResponse;
 import com.example.quanlytom.dto.response.ImportPageResponse;
 import com.example.quanlytom.dto.response.ImportResponse;
@@ -132,5 +133,9 @@ public class ImportService {
         anImport.setDeleted(true);
         anImport.setDeletedAt(LocalDateTime.now());
         importRepository.save(anImport);
+    }
+
+    public List<AvailableStockResponse> getAvailableStock(Integer batchId){
+        return importDetailRepository.findAvailableStockByBatchId(batchId);
     }
 }
