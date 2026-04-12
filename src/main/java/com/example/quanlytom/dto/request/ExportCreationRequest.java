@@ -17,6 +17,7 @@ public class ExportCreationRequest implements Serializable {
     @Data
     @Value
     public static class ExportDetailCreationRequest{
+        Integer importDetailId;
         Double actualQuantity;
         Double returnedQuantity;
         BigDecimal subTotal;

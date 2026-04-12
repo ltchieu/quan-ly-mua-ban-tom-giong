@@ -15,9 +15,10 @@ public class ExportDetailResponse implements Serializable {
     @Data
     @Value
     public static class ExportDetailItem {
-        double actualQuantity;
-        int deductionRate;
-        int returnedQuantity;
+        Integer importDetailId;
+        Double actualQuantity;
+        Integer deductionRate;
+        Integer returnedQuantity;
         String returnReason;
         BigDecimal totalAmount;
         BigDecimal unitPrice;

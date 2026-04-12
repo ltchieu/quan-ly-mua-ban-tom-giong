@@ -50,7 +50,9 @@ public class ExportController {
     }
 
     @PostMapping()
-    public ResponseEntity<ApiResponse<ExportPageResponse.ExportResponse>> createNewExport(ExportCreationRequest exportCreationRequest){
+    public ResponseEntity<ApiResponse<ExportPageResponse.ExportResponse>> createNewExport(
+            @RequestBody ExportCreationRequest exportCreationRequest
+    ){
         ExportPageResponse.ExportResponse exportResponse = exportService.saveExport(exportCreationRequest);
         return ResponseEntity.ok()
                 .body(

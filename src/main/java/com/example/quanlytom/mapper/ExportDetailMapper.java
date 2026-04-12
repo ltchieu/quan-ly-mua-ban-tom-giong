@@ -11,6 +11,7 @@ import org.mapstruct.MappingTarget;
 public interface ExportDetailMapper {
 
     @Mapping(target = "totalAmount", source = "subTotal")
+    @Mapping(target = "importDetailId", source = "importDetail.id")
     @Mapping(target = "importDetail.price", source = "importDetail.importPrice")
     @Mapping(target = "importDetail.quantity", source = "importDetail.quantity")
     @Mapping(target = "importDetail.batchName", source = "importDetail.batch.batchName")
@@ -21,9 +22,9 @@ public interface ExportDetailMapper {
     @Mapping(target = "importDetail.attributeId", source = "importDetail.shrimpAttribute.attribute.id")
     ExportDetailResponse.ExportDetailItem toExportDetailItem(ExportDetail exportDetail);
 
-    @Mapping(target = "importDetail.batch.id", source = "batchId")
+    @Mapping(target = "importDetail", ignore = true)
     ExportDetail toExportDetail(ExportCreationRequest.ExportDetailCreationRequest request);
 
-    @Mapping(target = "importDetail.batch.id", source = "batchId")
+    @Mapping(target = "importDetail", ignore = true)
     void updateExportDetailFromRequest(ExportCreationRequest.ExportDetailCreationRequest request, @MappingTarget ExportDetail exportDetail);
 }

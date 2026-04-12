@@ -7,8 +7,10 @@ import com.example.quanlytom.entity.Export;
 import com.example.quanlytom.entity.ExportDetail;
 import com.example.quanlytom.mapper.ExportDetailMapper;
 import com.example.quanlytom.mapper.ExportMapper;
+import com.example.quanlytom.repository.CustomerRepository;
 import com.example.quanlytom.repository.ExportDetailRepository;
 import com.example.quanlytom.repository.ExportRepository;
+import com.example.quanlytom.repository.ImportDetailRepository;
 import com.example.quanlytom.specification.GenericSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,10 +28,19 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ExportService {
+    final CustomerRepository customerRepository;
     final ExportRepository exportRepository;
     final ExportDetailRepository exportDetailRepository;
+    final ImportDetailRepository importDetailRepository;
     final ExportMapper exportMapper;
     final ExportDetailMapper exportDetailMapper;
+
+    private Integer resolveImportDetailId(ExportCreationRequest.ExportDetailCreationRequest item) {
+        if (item.getImportDetailId() != null) {
+            return item.getImportDetailId();
+        }
+        throw new RuntimeException("importDetailId (recommended) or batchId is required for export detail");
+    }
 
     public ExportPageResponse getAllExports(
             LocalDateTime startDate,
@@ -69,12 +80,24 @@ public class ExportService {
         newExport.setCreatedAt(LocalDateTime.now());
         newExport.setDeleted(false);
 
+        if (exportCreationRequest.getCustomerId() != null) {
+            var customer = customerRepository.findById(exportCreationRequest.getCustomerId())
+                    .orElseThrow(() -> new RuntimeException("Customer not found: " + exportCreationRequest.getCustomerId()));
+            newExport.setCustomer(customer);
+        }
+
         exportRepository.save(newExport);
 
         if(exportCreationRequest.getExportDetails() != null){
             for (var item : exportCreationRequest.getExportDetails()){
                 ExportDetail exportDetail = exportDetailMapper.toExportDetail(item);
                 exportDetail.setExport(newExport);
+
+                Integer importDetailId = resolveImportDetailId(item);
+                var importDetail = importDetailRepository.findById(importDetailId)
+                        .orElseThrow(() -> new RuntimeException("ImportDetail not found: " + importDetailId));
+                exportDetail.setImportDetail(importDetail);
+
                 exportDetailRepository.save(exportDetail);
             }
         }
@@ -86,6 +109,13 @@ public class ExportService {
     public ExportPageResponse.ExportResponse updateExport(ExportCreationRequest exportUpdateRequest, Integer exportId){
         Export anExport = exportRepository.findById(exportId).orElseThrow(() -> new RuntimeException("Export not found"));
         exportMapper.updateExportFromRequest(exportUpdateRequest, anExport);
+
+        if (exportUpdateRequest.getCustomerId() != null) {
+            var customer = customerRepository.findById(exportUpdateRequest.getCustomerId())
+                    .orElseThrow(() -> new RuntimeException("Customer not found: " + exportUpdateRequest.getCustomerId()));
+            anExport.setCustomer(customer);
+        }
+
         exportRepository.save(anExport);
 
         if(exportUpdateRequest.getExportDetails() != null){
@@ -93,21 +123,41 @@ public class ExportService {
 
             for (var item : exportUpdateRequest.getExportDetails()){
                 ExportDetail existingDetail = null;
-                if (item.getBatchId() != null) {
+
+                if (item.getImportDetailId() != null) {
+                    Integer reqImportDetailId = item.getImportDetailId();
                     existingDetail = currentDetails.stream()
-                        .filter(d -> d.getImportDetail() != null && 
-                                     d.getImportDetail().getBatch() != null && 
-                                     item.getBatchId().equals(d.getImportDetail().getBatch().getId()))
-                        .findFirst().orElse(null);
+                            .filter(d -> d.getImportDetail() != null && reqImportDetailId.equals(d.getImportDetail().getId()))
+                            .findFirst()
+                            .orElse(null);
+                } else if (item.getBatchId() != null) {
+                    existingDetail = currentDetails.stream()
+                            .filter(d -> d.getImportDetail() != null &&
+                                         d.getImportDetail().getBatch() != null &&
+                                         item.getBatchId().equals(d.getImportDetail().getBatch().getId()))
+                            .findFirst()
+                            .orElse(null);
                 }
 
                 if (existingDetail != null) {
                     exportDetailMapper.updateExportDetailFromRequest(item, existingDetail);
+
+                    Integer importDetailId = resolveImportDetailId(item);
+                    var importDetail = importDetailRepository.findById(importDetailId)
+                            .orElseThrow(() -> new RuntimeException("ImportDetail not found: " + importDetailId));
+                    existingDetail.setImportDetail(importDetail);
+
                     exportDetailRepository.save(existingDetail);
                     currentDetails.remove(existingDetail);
                 } else {
                     ExportDetail newDetail = exportDetailMapper.toExportDetail(item);
                     newDetail.setExport(anExport);
+
+                    Integer importDetailId = resolveImportDetailId(item);
+                    var importDetail = importDetailRepository.findById(importDetailId)
+                            .orElseThrow(() -> new RuntimeException("ImportDetail not found: " + importDetailId));
+                    newDetail.setImportDetail(importDetail);
+
                     exportDetailRepository.save(newDetail);
                 }
             }

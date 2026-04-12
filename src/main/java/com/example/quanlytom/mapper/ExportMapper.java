@@ -20,9 +20,9 @@ public interface ExportMapper {
 
     List<ExportPageResponse.ExportResponse> toExportResponseList(List<Export> export);
 
-    @Mapping(target = "customer.id", source = "customerId")
+    @Mapping(target = "customer", ignore = true)
     Export toNewExport(ExportCreationRequest request);
 
-    @Mapping(target = "customer.id", source = "customerId")
+    @Mapping(target = "customer", ignore = true)
     void updateExportFromRequest(ExportCreationRequest request, @MappingTarget Export export);
 }
