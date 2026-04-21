@@ -2,6 +2,7 @@ package com.example.quanlytom.mapper;
 
 import com.example.quanlytom.dto.response.ExportPageResponse;
 import com.example.quanlytom.dto.request.ExportCreationRequest;
+import com.example.quanlytom.dto.request.ExportUpdateRequest;
 import com.example.quanlytom.entity.Export;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,5 +25,5 @@ public interface ExportMapper {
     Export toNewExport(ExportCreationRequest request);
 
     @Mapping(target = "customer", ignore = true)
-    void updateExportFromRequest(ExportCreationRequest request, @MappingTarget Export export);
+    void updateExportFromRequest(ExportUpdateRequest request, @MappingTarget Export export);
 }

@@ -1,6 +1,7 @@
 package com.example.quanlytom.service;
 
 import com.example.quanlytom.dto.request.ExportCreationRequest;
+import com.example.quanlytom.dto.request.ExportUpdateRequest;
 import com.example.quanlytom.dto.response.ExportDetailResponse;
 import com.example.quanlytom.dto.response.ExportPageResponse;
 import com.example.quanlytom.entity.Export;
@@ -35,11 +36,11 @@ public class ExportService {
     final ExportMapper exportMapper;
     final ExportDetailMapper exportDetailMapper;
 
-    private Integer resolveImportDetailId(ExportCreationRequest.ExportDetailCreationRequest item) {
+    private Integer requireImportDetailId(ExportCreationRequest.ExportDetailCreationRequest item) {
         if (item.getImportDetailId() != null) {
             return item.getImportDetailId();
         }
-        throw new RuntimeException("importDetailId (recommended) or batchId is required for export detail");
+        throw new RuntimeException("importDetailId is required for export detail");
     }
 
     public ExportPageResponse getAllExports(
@@ -93,7 +94,7 @@ public class ExportService {
                 ExportDetail exportDetail = exportDetailMapper.toExportDetail(item);
                 exportDetail.setExport(newExport);
 
-                Integer importDetailId = resolveImportDetailId(item);
+                Integer importDetailId = requireImportDetailId(item);
                 var importDetail = importDetailRepository.findById(importDetailId)
                         .orElseThrow(() -> new RuntimeException("ImportDetail not found: " + importDetailId));
                 exportDetail.setImportDetail(importDetail);
@@ -106,7 +107,7 @@ public class ExportService {
     }
 
     @Transactional
-    public ExportPageResponse.ExportResponse updateExport(ExportCreationRequest exportUpdateRequest, Integer exportId){
+    public ExportPageResponse.ExportResponse updateExport(ExportUpdateRequest exportUpdateRequest, Integer exportId){
         Export anExport = exportRepository.findById(exportId).orElseThrow(() -> new RuntimeException("Export not found"));
         exportMapper.updateExportFromRequest(exportUpdateRequest, anExport);
 
@@ -118,34 +119,30 @@ public class ExportService {
 
         exportRepository.save(anExport);
 
-        if(exportUpdateRequest.getExportDetails() != null){
+        if (exportUpdateRequest.getExportDetails() != null){
             List<ExportDetail> currentDetails = new ArrayList<>(anExport.getExportDetails());
 
             for (var item : exportUpdateRequest.getExportDetails()){
+                Integer detailId = item.getExportDetailId();
                 ExportDetail existingDetail = null;
 
-                if (item.getImportDetailId() != null) {
-                    Integer reqImportDetailId = item.getImportDetailId();
-                    existingDetail = currentDetails.stream()
-                            .filter(d -> d.getImportDetail() != null && reqImportDetailId.equals(d.getImportDetail().getId()))
-                            .findFirst()
-                            .orElse(null);
-                } else if (item.getBatchId() != null) {
-                    existingDetail = currentDetails.stream()
-                            .filter(d -> d.getImportDetail() != null &&
-                                         d.getImportDetail().getBatch() != null &&
-                                         item.getBatchId().equals(d.getImportDetail().getBatch().getId()))
-                            .findFirst()
-                            .orElse(null);
+                if (detailId != null) {
+                    existingDetail = exportDetailRepository.findById(detailId)
+                            .orElseThrow(() -> new RuntimeException("ExportDetail not found: " + detailId));
+                    if (existingDetail.getExport() == null || !exportId.equals(existingDetail.getExport().getId())) {
+                        throw new RuntimeException("ExportDetail not found for export: " + detailId);
+                    }
                 }
 
                 if (existingDetail != null) {
                     exportDetailMapper.updateExportDetailFromRequest(item, existingDetail);
 
-                    Integer importDetailId = resolveImportDetailId(item);
-                    var importDetail = importDetailRepository.findById(importDetailId)
-                            .orElseThrow(() -> new RuntimeException("ImportDetail not found: " + importDetailId));
-                    existingDetail.setImportDetail(importDetail);
+                    if (item.getImportDetailId() != null) {
+                        Integer importDetailId = item.getImportDetailId();
+                        var importDetail = importDetailRepository.findById(importDetailId)
+                                .orElseThrow(() -> new RuntimeException("ImportDetail not found: " + importDetailId));
+                        existingDetail.setImportDetail(importDetail);
+                    }
 
                     exportDetailRepository.save(existingDetail);
                     currentDetails.remove(existingDetail);
@@ -153,7 +150,10 @@ public class ExportService {
                     ExportDetail newDetail = exportDetailMapper.toExportDetail(item);
                     newDetail.setExport(anExport);
 
-                    Integer importDetailId = resolveImportDetailId(item);
+                    Integer importDetailId = item.getImportDetailId();
+                    if (importDetailId == null) {
+                        throw new RuntimeException("importDetailId is required when creating a new export detail");
+                    }
                     var importDetail = importDetailRepository.findById(importDetailId)
                             .orElseThrow(() -> new RuntimeException("ImportDetail not found: " + importDetailId));
                     newDetail.setImportDetail(importDetail);
@@ -161,7 +161,7 @@ public class ExportService {
                     exportDetailRepository.save(newDetail);
                 }
             }
-            
+
             if (!currentDetails.isEmpty()) {
                 exportDetailRepository.deleteAll(currentDetails);
             }

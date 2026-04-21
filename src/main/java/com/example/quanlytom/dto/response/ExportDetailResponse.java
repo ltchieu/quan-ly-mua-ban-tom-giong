@@ -15,6 +15,7 @@ public class ExportDetailResponse implements Serializable {
     @Data
     @Value
     public static class ExportDetailItem {
+        Integer exportDetailId;
         Integer importDetailId;
         Double actualQuantity;
         Integer deductionRate;

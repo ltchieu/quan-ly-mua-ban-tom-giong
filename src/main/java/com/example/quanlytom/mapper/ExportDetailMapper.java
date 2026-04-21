@@ -2,6 +2,7 @@ package com.example.quanlytom.mapper;
 
 import com.example.quanlytom.dto.response.ExportDetailResponse;
 import com.example.quanlytom.dto.request.ExportCreationRequest;
+import com.example.quanlytom.dto.request.ExportUpdateRequest;
 import com.example.quanlytom.entity.ExportDetail;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -11,6 +12,7 @@ import org.mapstruct.MappingTarget;
 public interface ExportDetailMapper {
 
     @Mapping(target = "totalAmount", source = "subTotal")
+    @Mapping(target = "exportDetailId", source = "id")
     @Mapping(target = "importDetailId", source = "importDetail.id")
     @Mapping(target = "importDetail.price", source = "importDetail.importPrice")
     @Mapping(target = "importDetail.quantity", source = "importDetail.quantity")
@@ -26,5 +28,12 @@ public interface ExportDetailMapper {
     ExportDetail toExportDetail(ExportCreationRequest.ExportDetailCreationRequest request);
 
     @Mapping(target = "importDetail", ignore = true)
-    void updateExportDetailFromRequest(ExportCreationRequest.ExportDetailCreationRequest request, @MappingTarget ExportDetail exportDetail);
+    @Mapping(target = "unitPrice", source = "unitPrice")
+    @Mapping(target = "deductionRate", source = "deductionRate")
+    ExportDetail toExportDetail(ExportUpdateRequest.ExportDetailUpdateRequest request);
+
+    @Mapping(target = "importDetail", ignore = true)
+    @Mapping(target = "unitPrice", source = "unitPrice")
+    @Mapping(target = "deductionRate", source = "deductionRate")
+    void updateExportDetailFromRequest(ExportUpdateRequest.ExportDetailUpdateRequest request, @MappingTarget ExportDetail exportDetail);
 }

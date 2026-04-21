@@ -1,10 +1,10 @@
 package com.example.quanlytom.controller;
 
 import com.example.quanlytom.dto.request.ExportCreationRequest;
+import com.example.quanlytom.dto.request.ExportUpdateRequest;
 import com.example.quanlytom.dto.response.ApiResponse;
 import com.example.quanlytom.dto.response.ExportDetailResponse;
 import com.example.quanlytom.dto.response.ExportPageResponse;
-import com.example.quanlytom.entity.Export;
 import com.example.quanlytom.service.ExportService;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -62,9 +62,9 @@ public class ExportController {
                 );
     }
 
-    @PostMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ExportPageResponse.ExportResponse>> updateAnExport(
-            @RequestBody ExportCreationRequest exportUpdateRequest,
+            @RequestBody ExportUpdateRequest exportUpdateRequest,
             @PathVariable Integer id
     ) {
         ExportPageResponse.ExportResponse updatedExport = exportService.updateExport(exportUpdateRequest, id);
