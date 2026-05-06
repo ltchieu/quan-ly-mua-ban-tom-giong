@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ImportRepository extends JpaRepository<Import, Integer>, JpaSpecificationExecutor<Import> {
@@ -28,4 +29,6 @@ public interface ImportRepository extends JpaRepository<Import, Integer>, JpaSpe
     })
     @Query("SELECT i FROM Import i WHERE i.id = :id")
     Optional<Import> findWithDetailsById(@Param("id") Integer id);
+
+    List<Import> findBySupplier_Id(Integer supplierId);
 }

@@ -36,12 +36,7 @@ public class CustomerService {
         Pageable paging = PageRequest.of(page, size);
         Page<Customer> customerPage;
 
-        if(name == null){
-            customerPage =  customerRepository.findAll(paging);
-        }
-        else {
-            customerPage = customerRepository.findAllByFullName(paging, name);
-        }
+        customerPage = customerRepository.findAllByFullName(paging, name);
 
         List<CustomerResponse> customerResponses = customerMapper.toCustomerResponseList(customerPage.getContent());
 

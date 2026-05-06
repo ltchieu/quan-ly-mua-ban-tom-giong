@@ -44,4 +44,11 @@ public class Supplier {
     @OneToMany(mappedBy = "supplier")
     @Builder.Default
     private List<Import> imports = new ArrayList<>();
+
+    public Supplier(Integer id, String fullName, String phoneNumber, String address) {
+        this.id = id;
+        this.fullName = fullName;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+    }
 }
