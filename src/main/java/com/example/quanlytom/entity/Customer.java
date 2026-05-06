@@ -44,4 +44,11 @@ public class Customer {
     @OneToMany(mappedBy = "customer")
     @Builder.Default
     private List<Export> exports = new ArrayList<>();
+
+    public Customer(Integer id, String fullName, String phoneNumber, String address) {
+        this.id = id;
+        this.fullName = fullName;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+    }
 }

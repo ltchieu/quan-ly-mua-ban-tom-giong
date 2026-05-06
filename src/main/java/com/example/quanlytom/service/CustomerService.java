@@ -2,6 +2,7 @@ package com.example.quanlytom.service;
 
 import com.example.quanlytom.dto.request.CustomerCreationRequest;
 import com.example.quanlytom.dto.response.CustomerDetailResponse;
+import com.example.quanlytom.dto.response.CustomerPageResponse;
 import com.example.quanlytom.dto.response.CustomerResponse;
 import com.example.quanlytom.entity.Customer;
 import com.example.quanlytom.entity.Export;
@@ -9,6 +10,9 @@ import com.example.quanlytom.mapper.CustomerMapper;
 import com.example.quanlytom.repository.CustomerRepository;
 import com.example.quanlytom.repository.ExportRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,12 +24,31 @@ public class CustomerService {
     final CustomerMapper customerMapper;
     final ExportRepository exportRepository;
 
-    public List<CustomerResponse> getAllCustomers() {
+    public List<CustomerResponse> getAllCustomersName() {
         List<Customer> customers = customerRepository.findAll();
         return customerMapper.toCustomerResponseList(customers);
     }
 
-    public CustomerDetailResponse getCustomerDetail(Integer customerId){
+    public CustomerPageResponse getAllCustomers(
+            String name,
+            int page, int size
+    ) {
+        Pageable paging = PageRequest.of(page, size);
+        Page<Customer> customerPage;
+
+        if(name == null){
+            customerPage =  customerRepository.findAll(paging);
+        }
+        else {
+            customerPage = customerRepository.findAllByFullName(paging, name);
+        }
+
+        List<CustomerResponse> customerResponses = customerMapper.toCustomerResponseList(customerPage.getContent());
+
+        return new CustomerPageResponse(customerPage.getTotalElements(), customerPage.getNumber(), customerPage.getTotalPages(), customerResponses);
+    }
+
+    public CustomerDetailResponse getCustomerDetail(Integer customerId) {
         Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new RuntimeException("Customer not found"));
         List<Export> exportList = exportRepository.findByCustomer_Id(customerId);
 
@@ -36,7 +59,7 @@ public class CustomerService {
         return customerDetailResponse;
     }
 
-    public CustomerResponse createCustomer(CustomerCreationRequest customerCreationRequest){
+    public CustomerResponse createCustomer(CustomerCreationRequest customerCreationRequest) {
         Customer newCustomer = customerMapper.toNewCustomer(customerCreationRequest);
         newCustomer.setDeleted(false);
 
@@ -44,7 +67,7 @@ public class CustomerService {
         return customerMapper.toCustomerResponse(newCustomer);
     }
 
-    public CustomerResponse updateCustomer(CustomerCreationRequest customerUpdateRequest, Integer customerId){
+    public CustomerResponse updateCustomer(CustomerCreationRequest customerUpdateRequest, Integer customerId) {
         Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new RuntimeException("Customer not found"));
 
         customerMapper.updateCustomerFromRequest(customerUpdateRequest, customer);
