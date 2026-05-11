@@ -13,4 +13,5 @@ public interface ShrimpAttributeRepository extends JpaRepository<ShrimpAttribute
           @Param("shrimpId") Integer shrimpId,
           @Param("attributeId") Integer attributeId
   );
+
 }
