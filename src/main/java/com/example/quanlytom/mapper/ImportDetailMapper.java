@@ -2,8 +2,7 @@ package com.example.quanlytom.mapper;
 
 import com.example.quanlytom.dto.request.ImportCreationRequest;
 import com.example.quanlytom.entity.ImportDetail;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface ImportDetailMapper {
@@ -18,4 +17,13 @@ public interface ImportDetailMapper {
     @Mapping(target = "importOrder", ignore = true)
     @Mapping(target = "exportDetails", ignore = true)
     ImportDetail toImportDetail(ImportCreationRequest.ImportDetailRequest request);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "importPrice", source = "price")
+    @Mapping(target = "importOrder", ignore = true)
+    @Mapping(target = "shrimpAttribute", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "batch", ignore = true)
+    @Mapping(target = "exportDetails", ignore = true)
+    void updateImportDetailFromRequest(ImportCreationRequest.ImportDetailRequest request, @MappingTarget ImportDetail importDetail);
 }

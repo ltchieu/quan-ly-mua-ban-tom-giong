@@ -22,6 +22,7 @@ public class ImportDetailResponse implements Serializable {
     @Setter
     @Getter
     public static class ImportDetails {
+        Integer importDetailId;
         BigDecimal price;
         Double quantity;
         String batchName;

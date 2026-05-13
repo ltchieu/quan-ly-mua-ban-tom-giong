@@ -29,6 +29,7 @@ public interface ImportMapper {
     @Mapping(target = "attributeName", source = "shrimpAttribute.attribute.name")
     @Mapping(target = "attributeId", source = "shrimpAttribute.attribute.id")
     @Mapping(target = "price", source = "importPrice")
+    @Mapping(target = "importDetailId", source = "id")
     ImportDetailResponse.ImportDetails toImportDetails(ImportDetail importDetail);
 
     @Mapping(target = "id", ignore = true)
@@ -42,6 +43,7 @@ public interface ImportMapper {
     Import toNewImport(ImportCreationRequest importCreationRequest);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "importDetails", ignore = true)
     void updateImportFromRequest(ImportCreationRequest importCreationRequest, @MappingTarget Import importEntity);
 
     List<ImportResponse> toImportResponseList(List<Import> imports);
