@@ -1,6 +1,5 @@
 package com.example.quanlytom.repository;
 
-import com.example.quanlytom.entity.Attribute;
 import com.example.quanlytom.entity.ShrimpAttribute;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

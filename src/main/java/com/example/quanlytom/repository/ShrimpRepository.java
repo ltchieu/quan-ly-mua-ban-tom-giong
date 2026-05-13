@@ -1,7 +1,6 @@
 package com.example.quanlytom.repository;
 
 import com.example.quanlytom.dto.response.ShrimpDetailResponse;
-import com.example.quanlytom.dto.response.ShrimpResponse;
 import com.example.quanlytom.entity.Shrimp;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,5 +1,6 @@
 package com.example.quanlytom.entity;
 
+import com.example.quanlytom.enums.BatchStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -25,7 +26,8 @@ public class Batch {
     private Integer id;
 
     @Column(name = "TrangThai", columnDefinition = "NVARCHAR(255)")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private BatchStatus status;
 
     @Column(name = "TenLo", columnDefinition = "NVARCHAR(255)")
     private String batchName;
