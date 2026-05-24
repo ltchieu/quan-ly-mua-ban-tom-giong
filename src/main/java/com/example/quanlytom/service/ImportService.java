@@ -1,7 +1,7 @@
 package com.example.quanlytom.service;
 
 import com.example.quanlytom.dto.request.ImportCreationRequest;
-import com.example.quanlytom.dto.response.AvailableStockResponse;
+import com.example.quanlytom.dto.request.InventoryCreationRequest;
 import com.example.quanlytom.dto.response.ImportDetailResponse;
 import com.example.quanlytom.dto.response.ImportPageResponse;
 import com.example.quanlytom.dto.response.ImportResponse;
@@ -36,6 +36,7 @@ public class ImportService {
     private final BatchRepository batchRepository;
     private final ShrimpAttributeRepository shrimpAttributeRepository;
     private final SupplierRepository supplierRepository;
+    private final InventoryService inventoryService;
 
     public ImportPageResponse getAllImports(
             LocalDateTime startDate,
@@ -94,6 +95,8 @@ public class ImportService {
                 importDetail.setBatch(newBatch);
 
                 importDetailRepository.save(importDetail);
+
+                inventoryService.addNewStock(new InventoryCreationRequest(importDetail.getQuantity(), newBatch, shrimpAttribute));
             }
         }
         return importMapper.toImportDetailResponse(anImport);
@@ -115,6 +118,7 @@ public class ImportService {
 
         if (importCreationRequest.getImportDetails() != null) {
             List<ImportDetail> currentDetails = new ArrayList<>(anImport.getImportDetails());
+            Batch importBatch = currentDetails.isEmpty() ? null : currentDetails.getFirst().getBatch();
 
             for (var item : importCreationRequest.getImportDetails()) {
                 ImportDetail existingDetail = null;
@@ -127,23 +131,39 @@ public class ImportService {
                 }
 
                 if (existingDetail != null) {
+                    Double oldQuantity = existingDetail.getQuantity();
+                    ShrimpAttribute oldShrimpAttr = existingDetail.getShrimpAttribute();
+                    Batch detailBatch = existingDetail.getBatch();
+                    if (importBatch == null) importBatch = detailBatch;
+
                     // Update existing detail
                     importDetailMapper.updateImportDetailFromRequest(item, existingDetail);
 
                     // Update ShrimpAttribute nếu có thay đổi shrimpId hoặc attributeId
+                    ShrimpAttribute newShrimpAttr = oldShrimpAttr;
                     if (item.getShrimpId() != null || item.getAttributeId() != null) {
                         Integer shrimpId = item.getShrimpId() != null
                                 ? item.getShrimpId()
-                                : existingDetail.getShrimpAttribute().getShrimp().getId();
+                                : oldShrimpAttr.getShrimp().getId();
                         Integer attributeId = item.getAttributeId() != null
                                 ? item.getAttributeId()
-                                : existingDetail.getShrimpAttribute().getAttribute().getId();
+                                : oldShrimpAttr.getAttribute().getId();
 
-                        ShrimpAttribute shrimpAttribute = shrimpAttributeRepository
+                        newShrimpAttr = shrimpAttributeRepository
                                 .findByShrimpAndAttribute(shrimpId, attributeId)
                                 .orElseThrow(() -> new RuntimeException(
                                         "ShrimpAttribute not found for shrimpId: " + shrimpId + ", attributeId: " + attributeId));
-                        existingDetail.setShrimpAttribute(shrimpAttribute);
+                        existingDetail.setShrimpAttribute(newShrimpAttr);
+                    }
+
+                    if (oldShrimpAttr.getId().equals(newShrimpAttr.getId())) {
+                        double difference = existingDetail.getQuantity() - oldQuantity;
+                        if (difference != 0) {
+                            inventoryService.adjustStockQuantity(detailBatch.getId(), oldShrimpAttr.getId(), difference);
+                        }
+                    } else {
+                        inventoryService.adjustStockQuantity(detailBatch.getId(), oldShrimpAttr.getId(), -oldQuantity);
+                        inventoryService.addNewStock(new InventoryCreationRequest(existingDetail.getQuantity(), detailBatch, newShrimpAttr));
                     }
 
                     importDetailRepository.save(existingDetail);
@@ -162,7 +182,22 @@ public class ImportService {
                     ImportDetail newDetail = importDetailMapper.toImportDetail(item);
                     newDetail.setImportOrder(anImport);
                     newDetail.setShrimpAttribute(shrimpAttribute);
+                    
+                    if (importBatch != null) {
+                        newDetail.setBatch(importBatch);
+                    } else {
+                        // Fallback in case import previously had no details (unexpected)
+                        Batch newBatch = new Batch();
+                        newBatch.setBatchName("BATCH-" + anImport.getCreatedAt().toLocalDate().toString());
+                        newBatch.setCreatedDate(LocalDateTime.now());
+                        newBatch.setStatus(BatchStatus.IN_PROGRESS);
+                        importBatch = batchRepository.save(newBatch);
+                        newDetail.setBatch(importBatch);
+                    }
+                    
                     importDetailRepository.save(newDetail);
+                    
+                    inventoryService.addNewStock(new InventoryCreationRequest(newDetail.getQuantity(), importBatch, shrimpAttribute));
                     
                     // Attach to anImport to fix duplicated or missing relation issues
                     anImport.getImportDetails().add(newDetail);
@@ -171,6 +206,9 @@ public class ImportService {
 
             // Xóa các detail không còn trong request
             if (!currentDetails.isEmpty()) {
+                for (ImportDetail deletedDetail : currentDetails) {
+                    inventoryService.adjustStockQuantity(deletedDetail.getBatch().getId(), deletedDetail.getShrimpAttribute().getId(), -deletedDetail.getQuantity());
+                }
                 importDetailRepository.deleteAll(currentDetails);
             }
         }
@@ -183,9 +221,5 @@ public class ImportService {
         anImport.setDeleted(true);
         anImport.setDeletedAt(LocalDateTime.now());
         importRepository.save(anImport);
-    }
-
-    public List<AvailableStockResponse> getAvailableStock(Integer batchId){
-        return importDetailRepository.findAvailableStockByBatchId(batchId);
     }
 }

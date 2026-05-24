@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @SQLDelete(sql = "UPDATE ton_kho SET is_deleted = 1, deleted_at = GETDATE() WHERE id = ?")
-@SQLRestriction("IsDeleted = 0")
+@SQLRestriction("is_deleted = 0")
 public class Inventory {
 
     @Id

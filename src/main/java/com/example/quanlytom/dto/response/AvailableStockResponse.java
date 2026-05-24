@@ -1,8 +1,12 @@
 package com.example.quanlytom.dto.response;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class AvailableStockResponse {
     Integer importDetailId;
     String shrimpName;
@@ -10,11 +14,4 @@ public class AvailableStockResponse {
     Double remainingQuantity;
     Double importPrice;
 
-    public AvailableStockResponse(Integer importDetailId, String shrimpName, String attributeName, Double remainingQuantity, Double importPrice) {
-        this.importDetailId = importDetailId;
-        this.shrimpName = shrimpName;
-        this.attributeName = attributeName;
-        this.remainingQuantity = remainingQuantity;
-        this.importPrice = importPrice;
-    }
 }

@@ -12,6 +12,7 @@ import com.example.quanlytom.repository.CustomerRepository;
 import com.example.quanlytom.repository.ExportDetailRepository;
 import com.example.quanlytom.repository.ExportRepository;
 import com.example.quanlytom.repository.ImportDetailRepository;
+import com.example.quanlytom.repository.InventoryRepository;
 import com.example.quanlytom.specification.GenericSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,6 +34,8 @@ public class ExportService {
     final ExportRepository exportRepository;
     final ExportDetailRepository exportDetailRepository;
     final ImportDetailRepository importDetailRepository;
+    final InventoryRepository inventoryRepository;
+    final InventoryService inventoryService;
     final ExportMapper exportMapper;
     final ExportDetailMapper exportDetailMapper;
 
@@ -94,12 +97,20 @@ public class ExportService {
                 ExportDetail exportDetail = exportDetailMapper.toExportDetail(item);
                 exportDetail.setExport(newExport);
 
-                Integer importDetailId = requireImportDetailId(item);
-                var importDetail = importDetailRepository.findById(importDetailId)
-                        .orElseThrow(() -> new RuntimeException("ImportDetail not found: " + importDetailId));
-                exportDetail.setImportDetail(importDetail);
+                Integer inventoryId = requireImportDetailId(item);
+                var inventory = inventoryRepository.findById(inventoryId)
+                        .orElseThrow(() -> new RuntimeException("Inventory not found (sent as importDetailId): " + inventoryId));
 
+                Integer batchId = inventory.getBatch().getId();
+                Integer shrimpAttrId = inventory.getShrimpAttribute().getId();
+                
+                var importDetails = importDetailRepository.findByBatch_IdAndShrimpAttribute_Id(batchId, shrimpAttrId);
+                if(importDetails.isEmpty()) throw new RuntimeException("No import detail matches for inventory: " + inventoryId);
+                
+                exportDetail.setImportDetail(importDetails.getFirst());
                 exportDetailRepository.save(exportDetail);
+
+                inventoryService.updateStockQuantity(batchId, shrimpAttrId, exportDetail.getActualQuantity());
             }
         }
 
@@ -135,13 +146,34 @@ public class ExportService {
                 }
 
                 if (existingDetail != null) {
+                    Double oldQuantity = existingDetail.getActualQuantity();
+                    Integer oldBatchId = existingDetail.getImportDetail().getBatch().getId();
+                    Integer oldShrimpAttrId = existingDetail.getImportDetail().getShrimpAttribute().getId();
+
                     exportDetailMapper.updateExportDetailFromRequest(item, existingDetail);
 
                     if (item.getImportDetailId() != null) {
-                        Integer importDetailId = item.getImportDetailId();
-                        var importDetail = importDetailRepository.findById(importDetailId)
-                                .orElseThrow(() -> new RuntimeException("ImportDetail not found: " + importDetailId));
-                        existingDetail.setImportDetail(importDetail);
+                        Integer inventoryId = item.getImportDetailId();
+                        var inventory = inventoryRepository.findById(inventoryId)
+                                .orElseThrow(() -> new RuntimeException("Inventory not found: " + inventoryId));
+                        
+                        Integer newBatchId = inventory.getBatch().getId();
+                        Integer newShrimpAttrId = inventory.getShrimpAttribute().getId();
+
+                        if (!oldBatchId.equals(newBatchId) || !oldShrimpAttrId.equals(newShrimpAttrId)) {
+                            inventoryService.adjustStockQuantity(oldBatchId, oldShrimpAttrId, oldQuantity);
+                            inventoryService.updateStockQuantity(newBatchId, newShrimpAttrId, existingDetail.getActualQuantity());
+                            
+                            var importDetails = importDetailRepository.findByBatch_IdAndShrimpAttribute_Id(newBatchId, newShrimpAttrId);
+                            if(importDetails.isEmpty()) throw new RuntimeException("No import detail found");
+                            existingDetail.setImportDetail(importDetails.getFirst());
+                        } else {
+                            double delta = existingDetail.getActualQuantity() - oldQuantity;
+                            inventoryService.adjustStockQuantity(newBatchId, newShrimpAttrId, -delta);
+                        }
+                    } else {
+                        double delta = existingDetail.getActualQuantity() - oldQuantity;
+                        inventoryService.adjustStockQuantity(oldBatchId, oldShrimpAttrId, -delta);
                     }
 
                     exportDetailRepository.save(existingDetail);
@@ -150,19 +182,30 @@ public class ExportService {
                     ExportDetail newDetail = exportDetailMapper.toExportDetail(item);
                     newDetail.setExport(anExport);
 
-                    Integer importDetailId = item.getImportDetailId();
-                    if (importDetailId == null) {
-                        throw new RuntimeException("importDetailId is required when creating a new export detail");
+                    Integer inventoryId = item.getImportDetailId();
+                    if (inventoryId == null) {
+                        throw new RuntimeException("importDetailId (inventoryId) is required when creating a new export detail");
                     }
-                    var importDetail = importDetailRepository.findById(importDetailId)
-                            .orElseThrow(() -> new RuntimeException("ImportDetail not found: " + importDetailId));
-                    newDetail.setImportDetail(importDetail);
+                    var inventory = inventoryRepository.findById(inventoryId)
+                            .orElseThrow(() -> new RuntimeException("Inventory not found: " + inventoryId));
+
+                    Integer batchId = inventory.getBatch().getId();
+                    Integer shrimpAttrId = inventory.getShrimpAttribute().getId();
+                    var importDetails = importDetailRepository.findByBatch_IdAndShrimpAttribute_Id(batchId, shrimpAttrId);
+                    if(importDetails.isEmpty()) throw new RuntimeException("No import detail found");
+                    newDetail.setImportDetail(importDetails.getFirst());
 
                     exportDetailRepository.save(newDetail);
+                    inventoryService.updateStockQuantity(batchId, shrimpAttrId, newDetail.getActualQuantity());
                 }
             }
 
             if (!currentDetails.isEmpty()) {
+                for (ExportDetail delItem : currentDetails) {
+                    Integer bId = delItem.getImportDetail().getBatch().getId();
+                    Integer sId = delItem.getImportDetail().getShrimpAttribute().getId();
+                    inventoryService.adjustStockQuantity(bId, sId, delItem.getActualQuantity());
+                }
                 exportDetailRepository.deleteAll(currentDetails);
             }
         }
@@ -173,6 +216,11 @@ public class ExportService {
     @Transactional
     public void deleteExport(Integer exportId) {
         Export anExport = exportRepository.findById(exportId).orElseThrow(() -> new RuntimeException("Export not found"));
+        for(ExportDetail ed : anExport.getExportDetails()){
+            Integer bId = ed.getImportDetail().getBatch().getId();
+            Integer sId = ed.getImportDetail().getShrimpAttribute().getId();
+            inventoryService.adjustStockQuantity(bId, sId, ed.getActualQuantity());
+        }
         anExport.setDeleted(true);
         anExport.setDeletedAt(LocalDateTime.now());
         exportRepository.save(anExport);

@@ -1,6 +1,5 @@
 package com.example.quanlytom.repository;
 
-import com.example.quanlytom.dto.response.AvailableStockResponse;
 import com.example.quanlytom.dto.response.BatchDetailResponse;
 import com.example.quanlytom.entity.ImportDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,31 +9,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ImportDetailRepository extends JpaRepository<ImportDetail, Integer> {
-
-    @Query("""
-                select new com.example.quanlytom.dto.response.AvailableStockResponse(
-                    ctn.id,
-                    t.name,
-                    tc.name,
-                    cast((ctn.quantity - COALESCE(SUM(ctx.actualQuantity), 0.0d)) as double),
-                    ctn.importPrice
-                )
-                from ImportDetail ctn
-            
-                left join ExportDetail ctx on ctn.id = ctx.importDetail.id AND ctx.isDeleted = false
-                join ShrimpAttribute tct on ctn.shrimpAttribute.id = tct.id
-                join Shrimp t on t.id = tct.shrimp.id
-                join Attribute tc on tc.id = tct.attribute.id
-            
-                where ctn.batch.id = :batchId AND ctn.isDeleted = false
-                Group by
-                	ctn.id,
-                	t.name,
-                    tc.name,
-                	ctn.importPrice,
-                    ctn.quantity
-            """)
-    List<AvailableStockResponse> findAvailableStockByBatchId(@Param("batchId") Integer batchId);
 
     @Query(value = """
                 SELECT
@@ -55,4 +29,27 @@ public interface ImportDetailRepository extends JpaRepository<ImportDetail, Inte
                 GROUP BY t.Ten, tc.ten_tinh_chat, ct.so_luong_nhap, ct.gia_nhap
             """, nativeQuery = true)
     List<BatchDetailResponse.ShrimpInBatchDTO> getShrimpListInBatch(@Param("batchId") Integer batchId);
+
+    @Query("""
+            SELECT COALESCE(SUM(id.quantity), 0.0)
+            FROM ImportDetail id
+            WHERE id.batch.id = :batchId AND id.shrimpAttribute.id = :shrimpAttributeId AND id.isDeleted = false
+            """)
+    Double sumImportQuantity(@Param("batchId") Integer batchId, @Param("shrimpAttributeId") Integer shrimpAttributeId);
+
+    @Query("""
+            SELECT COALESCE(MAX(id.importPrice), 0.0)
+            FROM ImportDetail id
+            WHERE id.batch.id = :batchId AND id.shrimpAttribute.id = :shrimpAttributeId AND id.isDeleted = false
+            """)
+    Double getLatestImportPrice(@Param("batchId") Integer batchId, @Param("shrimpAttributeId") Integer shrimpAttributeId);
+
+    @Query("""
+            SELECT COALESCE(SUM(id.quantity * id.importPrice), 0.0)
+            FROM ImportDetail id
+            WHERE id.batch.id = :batchId AND id.shrimpAttribute.id = :shrimpAttributeId AND id.isDeleted = false
+            """)
+    Double sumTotalImportCost(@Param("batchId") Integer batchId, @Param("shrimpAttributeId") Integer shrimpAttributeId);
+
+    List<ImportDetail> findByBatch_IdAndShrimpAttribute_Id(Integer batchId, Integer shrimpAttributeId);
 }
