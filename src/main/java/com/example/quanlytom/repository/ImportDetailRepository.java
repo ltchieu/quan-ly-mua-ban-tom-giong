@@ -1,6 +1,7 @@
 package com.example.quanlytom.repository;
 
 import com.example.quanlytom.dto.response.BatchDetailResponse;
+import com.example.quanlytom.dto.response.LowStockWarningResponse;
 import com.example.quanlytom.entity.ImportDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -52,4 +53,28 @@ public interface ImportDetailRepository extends JpaRepository<ImportDetail, Inte
     Double sumTotalImportCost(@Param("batchId") Integer batchId, @Param("shrimpAttributeId") Integer shrimpAttributeId);
 
     List<ImportDetail> findByBatch_IdAndShrimpAttribute_Id(Integer batchId, Integer shrimpAttributeId);
+
+    // --- Statistics queries ---
+
+    @Query(value = "SELECT COALESCE(SUM(so_luong_nhap), 0) FROM ctnhap_hang WHERE is_deleted = 0", nativeQuery = true)
+    Double sumTotalImportQuantity();
+
+    @Query(value = """
+        SELECT
+            t.Ten                    AS shrimpName,
+            tc.ten_tinh_chat         AS characteristic,
+            lh.ten_lo                AS batchName,
+            ct.so_luong_nhap - COALESCE(SUM(ctx.so_luong_thuc_giao), 0) AS remainingQuantity
+        FROM ctnhap_hang ct
+        JOIN tinhchat_tom tct   ON ct.ma_tinh_chat_tom  = tct.id
+        JOIN Tom t              ON tct.ma_tom            = t.id
+        JOIN tinh_chat tc       ON tct.ma_tinh_chat      = tc.id
+        JOIN lo_hang lh         ON ct.ma_lo_hang         = lh.id
+        LEFT JOIN ctxuat_hang ctx ON ctx.ma_ct_nhap_hang = ct.id AND ctx.is_deleted = 0
+        WHERE ct.is_deleted = 0 AND lh.is_deleted = 0
+        GROUP BY t.Ten, tc.ten_tinh_chat, lh.ten_lo, ct.so_luong_nhap
+        HAVING (ct.so_luong_nhap - COALESCE(SUM(ctx.so_luong_thuc_giao), 0)) < :threshold
+        ORDER BY remainingQuantity ASC
+        """, nativeQuery = true)
+    List<LowStockWarningResponse.Projection> getLowStockWarnings(@Param("threshold") double threshold);
 }

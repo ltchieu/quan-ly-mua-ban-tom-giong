@@ -14,4 +14,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     WHERE c.fullName LIKE CONCAT('%', :name, '%')
 """)
     Page<Customer> findAllByFullName(Pageable pageable, String name);
+
+    // --- Statistics queries ---
+
+    @Query(value = "SELECT COUNT(*) FROM khach_hang WHERE is_deleted = 0", nativeQuery = true)
+    Long countAllActive();
 }

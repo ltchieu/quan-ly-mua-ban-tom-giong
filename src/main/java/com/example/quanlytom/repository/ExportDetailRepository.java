@@ -1,6 +1,7 @@
 package com.example.quanlytom.repository;
 
 import com.example.quanlytom.dto.response.BatchDetailResponse;
+import com.example.quanlytom.dto.response.TopProductResponse;
 import com.example.quanlytom.entity.ExportDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -48,5 +49,31 @@ public interface ExportDetailRepository extends JpaRepository<ExportDetail, Inte
             WHERE ed.importDetail.batch.id = :batchId AND ed.importDetail.shrimpAttribute.id = :shrimpAttribute AND ed.isDeleted = false
             """)
     Double sumReturnedQuantity(@Param("batchId") Integer batchId, @Param("shrimpAttribute") Integer shrimpAttribute);
+
+    // --- Statistics queries ---
+
+    @Query(value = "SELECT COALESCE(SUM(so_luong_thuc_giao), 0) FROM ctxuat_hang WHERE is_deleted = 0", nativeQuery = true)
+    Double sumTotalExportQuantity();
+
+    @Query(value = """
+        SELECT TOP(:limit)
+            t.Ten                           AS shrimpName,
+            tc.ten_tinh_chat                AS characteristic,
+            COALESCE(SUM(ctx.so_luong_thuc_giao), 0) AS totalExportQuantity,
+            COALESCE(SUM(ctx.thanh_tien), 0)         AS totalRevenue,
+            ROUND(
+                COALESCE(SUM(ctx.thanh_tien), 0) * 100.0 /
+                NULLIF(SUM(SUM(ctx.thanh_tien)) OVER(), 0), 2
+            )                               AS revenuePercentage
+        FROM ctxuat_hang ctx
+        JOIN ctnhap_hang ct    ON ctx.ma_ct_nhap_hang  = ct.id
+        JOIN tinhchat_tom tct  ON ct.ma_tinh_chat_tom  = tct.id
+        JOIN Tom t             ON tct.ma_tom            = t.id
+        JOIN tinh_chat tc      ON tct.ma_tinh_chat      = tc.id
+        WHERE ctx.is_deleted = 0 AND ct.is_deleted = 0
+        GROUP BY t.Ten, tc.ten_tinh_chat
+        ORDER BY totalRevenue DESC
+        """, nativeQuery = true)
+    List<TopProductResponse.Projection> getTopProducts(@Param("limit") int limit);
 
 }
