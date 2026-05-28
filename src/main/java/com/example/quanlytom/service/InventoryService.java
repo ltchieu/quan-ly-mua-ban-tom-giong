@@ -105,12 +105,16 @@ public class InventoryService {
         if (anInventory != null) {
             anInventory.setStockQuantity(anInventory.getStockQuantity() + inventoryCreationRequest.getStockQuantity());
             anInventory.setUpdatedAt(LocalDateTime.now());
+            if (anInventory.getStoredAt() == null) {
+                anInventory.setStoredAt(inventoryCreationRequest.getStoredAt() != null ? inventoryCreationRequest.getStoredAt() : LocalDateTime.now());
+            }
             inventoryRepository.save(anInventory);
         } else {
             Inventory newInventory = inventoryMapper.toNewInventory(inventoryCreationRequest);
             newInventory.setBatch(inventoryCreationRequest.getBatch());
             newInventory.setShrimpAttribute(inventoryCreationRequest.getShrimpAttribute());
             newInventory.setUpdatedAt(LocalDateTime.now());
+            newInventory.setStoredAt(inventoryCreationRequest.getStoredAt() != null ? inventoryCreationRequest.getStoredAt() : LocalDateTime.now());
 
             inventoryRepository.save(newInventory);
         }

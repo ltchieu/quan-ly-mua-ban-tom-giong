@@ -38,6 +38,12 @@ public class Inventory {
     @Column(name = "UpdatedAt")
     private LocalDateTime updatedAt;
 
+    @Column(name = "StoredAt")
+    private LocalDateTime storedAt;
+
+    @Column(name = "LastCheckedAt")
+    private LocalDateTime lastCheckedAt;
+
     @Column(name = "IsDeleted")
     @Builder.Default
     private Boolean isDeleted = false;

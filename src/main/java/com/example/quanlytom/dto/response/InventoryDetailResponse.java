@@ -16,6 +16,8 @@ public class InventoryDetailResponse{
     Double importQuantity;
     Double exportedQuantity;
     LocalDateTime updatedAt;
+    LocalDateTime storedAt;
+    LocalDateTime lastCheckedAt;
     Double returnedQuantity;   // Số lượng tôm bị khách trả lại
     Double DeadOrLostQuantity; //số lươn tôm chết hoặc mất mát
 

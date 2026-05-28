@@ -9,6 +9,8 @@ public class InventoryResponse {
     Integer id;
     Double stockQuantity;
     LocalDateTime updatedAt;
+    LocalDateTime storedAt;
+    LocalDateTime lastCheckedAt;
     String shrimpName;
     String attributeName;
     String batchName;

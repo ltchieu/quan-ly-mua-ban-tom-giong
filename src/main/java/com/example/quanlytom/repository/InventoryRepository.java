@@ -9,4 +9,5 @@ import java.util.List;
 public interface InventoryRepository extends JpaRepository<Inventory, Integer>, JpaSpecificationExecutor<Inventory> {
     Inventory findByBatch_IdAndShrimpAttribute_Id(Integer batchId, Integer shrimpAttributeId);
     List<Inventory> findByBatch_Id(Integer batchId);
+    List<Inventory> findByStockQuantityGreaterThan(Double quantity);
 }

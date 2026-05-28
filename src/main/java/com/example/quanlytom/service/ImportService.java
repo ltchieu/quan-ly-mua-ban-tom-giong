@@ -105,7 +105,7 @@ public class ImportService {
 
                 importDetailRepository.save(importDetail);
 
-                inventoryService.addNewStock(new InventoryCreationRequest(importDetail.getQuantity(), newBatch, shrimpAttribute));
+                inventoryService.addNewStock(new InventoryCreationRequest(importDetail.getQuantity(), newBatch, shrimpAttribute, anImport.getCreatedAt()));
             }
         }
         return importMapper.toImportDetailResponse(anImport);
@@ -180,7 +180,7 @@ public class ImportService {
                         }
                     } else {
                         inventoryService.adjustStockQuantity(detailBatch.getId(), oldShrimpAttr.getId(), -oldQuantity);
-                        inventoryService.addNewStock(new InventoryCreationRequest(existingDetail.getQuantity(), detailBatch, newShrimpAttr));
+                        inventoryService.addNewStock(new InventoryCreationRequest(existingDetail.getQuantity(), detailBatch, newShrimpAttr, anImport.getCreatedAt()));
                     }
 
                     importDetailRepository.save(existingDetail);
@@ -214,7 +214,7 @@ public class ImportService {
                     
                     importDetailRepository.save(newDetail);
                     
-                    inventoryService.addNewStock(new InventoryCreationRequest(newDetail.getQuantity(), importBatch, shrimpAttribute));
+                    inventoryService.addNewStock(new InventoryCreationRequest(newDetail.getQuantity(), importBatch, shrimpAttribute, anImport.getCreatedAt()));
                     
                     // Attach to anImport to fix duplicated or missing relation issues
                     anImport.getImportDetails().add(newDetail);

@@ -11,4 +11,5 @@ public class InventoryCreationRequest {
     Double stockQuantity;
     Batch batch;
     ShrimpAttribute shrimpAttribute;
+    java.time.LocalDateTime storedAt;
 }
