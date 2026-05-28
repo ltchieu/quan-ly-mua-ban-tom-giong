@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -151,5 +152,21 @@ public class InventoryService {
             responses.add(response);
         }
         return responses;
+    }
+
+    @Transactional
+    public InventoryDetailResponse recordTankLoss(Integer inventoryId, Double lossQuantity) {
+        Inventory inventory = inventoryRepository.findById(inventoryId)
+                .orElseThrow(() -> new RuntimeException("Inventory not found"));
+
+        if (inventory.getStockQuantity() < lossQuantity) {
+            throw new RuntimeException("Loss quantity cannot exceed current stock quantity");
+        }
+
+        inventory.setStockQuantity(inventory.getStockQuantity() - lossQuantity);
+        inventory.setUpdatedAt(LocalDateTime.now());
+        inventoryRepository.save(inventory);
+
+        return getDetailInventory(inventoryId);
     }
 }

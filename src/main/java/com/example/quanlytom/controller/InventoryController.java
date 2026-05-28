@@ -45,4 +45,16 @@ public class InventoryController {
         List<AvailableStockResponse> res = inventoryService.getAvailableStock(batchId);
         return ResponseEntity.ok().body(ApiResponse.<List<AvailableStockResponse>>builder().data(res).build());
     }
+
+    @PostMapping("/{id}/loss")
+    public ResponseEntity<ApiResponse<InventoryDetailResponse>> recordTankLoss(
+            @PathVariable Integer id,
+            @RequestBody @jakarta.validation.Valid com.example.quanlytom.dto.request.InventoryLossRequest request
+    ) {
+        InventoryDetailResponse updatedInventory = inventoryService.recordTankLoss(id, request.getLossQuantity());
+        return ResponseEntity.ok().body(ApiResponse.<InventoryDetailResponse>builder()
+                .message("Tank loss recorded successfully")
+                .data(updatedInventory)
+                .build());
+    }
 }
