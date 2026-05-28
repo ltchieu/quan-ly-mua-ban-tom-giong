@@ -37,6 +37,7 @@ public class UserService {
         user.setEmail(signupRequest.getEmail());
         user.setPhone(phoneNumber);
         user.setRole(userType);
+        user.setName(signupRequest.getName());
         user.setCreatedAt(LocalDateTime.now());
         user.setPasswordHash(passwordEncoder.encode(signupRequest.getPassword()));
         userRepository.save(user);
@@ -45,5 +46,20 @@ public class UserService {
 
     public Optional<Users> getUserByIdentifier(String identifier) {
         return userRepository.findByPhoneOrEmail(identifier, identifier);
+    }
+
+    public Optional<Users> getUserById(Integer id) {
+        return userRepository.findById(id);
+    }
+
+    public Users getCurrentUser() {
+        org.springframework.security.core.Authentication authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof com.example.quanlytom.security.model.UserDetailsImpl userDetails) {
+                return userRepository.findById(userDetails.getId()).orElse(null);
+            }
+        }
+        return null;
     }
 }

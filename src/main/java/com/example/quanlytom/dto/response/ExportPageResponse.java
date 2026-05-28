@@ -22,5 +22,6 @@ public class ExportPageResponse implements Serializable {
         private BigDecimal totalAmount;
         private String customerName;
         private String paymentMethod;
+        private String createBy;
     }
 }

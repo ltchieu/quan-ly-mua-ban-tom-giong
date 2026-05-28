@@ -14,12 +14,14 @@ public interface ImportMapper {
 
     @Mapping(target = "supplierName", source = "supplier.fullName")
     @Mapping(target = "supplierId", source = "supplier.id")
+    @Mapping(target = "createBy", source = "createdBy.name")
     ImportResponse toImportResponse(Import importEntity);
 
     @Mapping(target = "importId", source = "id")
     @Mapping(target = "supplierName", source = "supplier.fullName")
     @Mapping(target = "supplierId", source = "supplier.id")
     @Mapping(target = "importDetails", source = "importDetails")
+    @Mapping(target = "createBy", source = "createdBy.name")
     ImportDetailResponse toImportDetailResponse(Import importEntity);
 
     @Mapping(target = "batchName", source = "batch.batchName")

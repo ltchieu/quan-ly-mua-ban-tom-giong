@@ -16,6 +16,7 @@ public class ImportDetailResponse implements Serializable {
     Integer supplierId;
     BigDecimal totalAmount;
     String paymentStatus;
+    String createBy;
     List<ImportDetails> importDetails;
 
     @Value

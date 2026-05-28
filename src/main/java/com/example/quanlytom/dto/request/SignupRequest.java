@@ -25,4 +25,6 @@ public class SignupRequest {
     @Email(message = "INVALID_EMAIL")
     private String email;
 
+    private String name;
+
 }

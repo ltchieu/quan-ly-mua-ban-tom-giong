@@ -37,6 +37,7 @@ public class ImportService {
     private final ShrimpAttributeRepository shrimpAttributeRepository;
     private final SupplierRepository supplierRepository;
     private final InventoryService inventoryService;
+    private final UserService userService;
 
     public ImportPageResponse getAllImports(
             LocalDateTime startDate,
@@ -70,6 +71,14 @@ public class ImportService {
         if (anImport.getImportDate() == null) anImport.setImportDate(LocalDateTime.now());
         if (anImport.getCreatedAt() == null) anImport.setCreatedAt(LocalDateTime.now());
         anImport.setDeleted(false);
+
+        com.example.quanlytom.entity.Users currentUser = userService.getCurrentUser();
+        if (currentUser != null) {
+            anImport.setCreatedBy(currentUser);
+        } else if (importCreationRequest.getEmployeeId() != null) {
+            userService.getUserById(importCreationRequest.getEmployeeId())
+                    .ifPresent(anImport::setCreatedBy);
+        }
 
         // Save Import first to get the ID
         anImport = importRepository.save(anImport);
@@ -107,6 +116,14 @@ public class ImportService {
         Import anImport = importRepository.findById(importId)
                 .orElseThrow(() -> new RuntimeException("Import not found"));
         importMapper.updateImportFromRequest(importCreationRequest, anImport);
+
+        com.example.quanlytom.entity.Users currentUser = userService.getCurrentUser();
+        if (currentUser != null) {
+            anImport.setCreatedBy(currentUser);
+        } else if (importCreationRequest.getEmployeeId() != null) {
+            userService.getUserById(importCreationRequest.getEmployeeId())
+                    .ifPresent(anImport::setCreatedBy);
+        }
 
         if (importCreationRequest.getSupplierId() != null) {
             var supplier = supplierRepository.findById(importCreationRequest.getSupplierId())
@@ -220,6 +237,12 @@ public class ImportService {
         Import anImport = importRepository.findById(importId).orElseThrow(() -> new RuntimeException("Import not found"));
         anImport.setDeleted(true);
         anImport.setDeletedAt(LocalDateTime.now());
+        
+        com.example.quanlytom.entity.Users currentUser = userService.getCurrentUser();
+        if (currentUser != null) {
+            anImport.setCreatedBy(currentUser);
+        }
+        
         importRepository.save(anImport);
     }
 }

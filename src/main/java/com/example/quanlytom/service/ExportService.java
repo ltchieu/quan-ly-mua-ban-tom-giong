@@ -6,6 +6,7 @@ import com.example.quanlytom.dto.response.ExportDetailResponse;
 import com.example.quanlytom.dto.response.ExportPageResponse;
 import com.example.quanlytom.entity.Export;
 import com.example.quanlytom.entity.ExportDetail;
+import com.example.quanlytom.entity.Users;
 import com.example.quanlytom.mapper.ExportDetailMapper;
 import com.example.quanlytom.mapper.ExportMapper;
 import com.example.quanlytom.repository.CustomerRepository;
@@ -38,6 +39,7 @@ public class ExportService {
     final InventoryService inventoryService;
     final ExportMapper exportMapper;
     final ExportDetailMapper exportDetailMapper;
+    final UserService userService;
 
     private Integer requireImportDetailId(ExportCreationRequest.ExportDetailCreationRequest item) {
         if (item.getImportDetailId() != null) {
@@ -84,6 +86,11 @@ public class ExportService {
         newExport.setCreatedAt(LocalDateTime.now());
         newExport.setDeleted(false);
 
+        com.example.quanlytom.entity.Users currentUser = userService.getCurrentUser();
+        if (currentUser != null) {
+            newExport.setCreatedBy(currentUser);
+        }
+
         if (exportCreationRequest.getCustomerId() != null) {
             var customer = customerRepository.findById(exportCreationRequest.getCustomerId())
                     .orElseThrow(() -> new RuntimeException("Customer not found: " + exportCreationRequest.getCustomerId()));
@@ -121,6 +128,11 @@ public class ExportService {
     public ExportPageResponse.ExportResponse updateExport(ExportUpdateRequest exportUpdateRequest, Integer exportId){
         Export anExport = exportRepository.findById(exportId).orElseThrow(() -> new RuntimeException("Export not found"));
         exportMapper.updateExportFromRequest(exportUpdateRequest, anExport);
+
+        Users currentUser = userService.getCurrentUser();
+        if (currentUser != null) {
+            anExport.setCreatedBy(currentUser);
+        }
 
         if (exportUpdateRequest.getCustomerId() != null) {
             var customer = customerRepository.findById(exportUpdateRequest.getCustomerId())
@@ -223,6 +235,12 @@ public class ExportService {
         }
         anExport.setDeleted(true);
         anExport.setDeletedAt(LocalDateTime.now());
+
+        Users currentUser = userService.getCurrentUser();
+        if (currentUser != null) {
+            anExport.setCreatedBy(currentUser);
+        }
+
         exportRepository.save(anExport);
     }
 }

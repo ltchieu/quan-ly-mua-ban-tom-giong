@@ -44,6 +44,9 @@ public class Users {
     @Column(name = "Role", length = 50, nullable = false)
     private Role role;
 
+    @Column(name = "Name", length = 255)
+    private String name;
+
     // --- soft delete ---
     @Column(name = "IsDeleted", nullable = false)
     @Builder.Default

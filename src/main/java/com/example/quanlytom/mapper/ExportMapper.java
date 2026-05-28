@@ -17,6 +17,7 @@ public interface ExportMapper {
     @Mapping(target = "customerName", source = "customer.fullName")
     @Mapping(target = "totalAmount", source = "totalPayment")
     @Mapping(target = "paymentMethod", source = "paymentMethod")
+    @Mapping(target = "createBy", source = "createdBy.name")
     ExportPageResponse.ExportResponse toExportResponse(Export export);
 
     List<ExportPageResponse.ExportResponse> toExportResponseList(List<Export> export);

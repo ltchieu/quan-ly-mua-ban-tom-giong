@@ -19,4 +19,6 @@ public class ImportResponse implements Serializable {
     BigDecimal totalAmount;
 
     String paymentStatus;
+    
+    String createBy;
 }
