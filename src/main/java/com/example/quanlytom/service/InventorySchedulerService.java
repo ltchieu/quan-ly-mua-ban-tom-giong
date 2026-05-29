@@ -23,11 +23,11 @@ public class InventorySchedulerService {
     private final SimpMessagingTemplate messagingTemplate;
 
     /**
-     * Scan active inventory items automatically every minute.
+     * Scan active inventory items automatically twice a day (every 12 hours).
      * Checks if the time since import is larger than 36 hours or between 24 and 36 hours.
      * Sends a notification to the frontend via WebSocket if conditions match.
      */
-    @Scheduled(fixedRate = 60000) // 1 minute
+    @Scheduled(cron = "0 0 0,12 * * *") // twice a day (at 00:00 and 12:00)
     @Transactional
     public void checkInventoryAges() {
         log.info("Starting automatic inventory age check...");
